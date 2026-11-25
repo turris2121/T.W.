@@ -1,0 +1,8 @@
+{
+  "_help": "Add one entry per place you will stay. coastal=true for beach/coast towns. Dates are optional (YYYY-MM-DD); without dates the place is watched all the time.",
+  "locations": [
+    { "name": "Home (example)", "lat": 40.4168, "lon": -3.7038, "coastal": false },
+    { "name": "Khao Lak, Thailand (example)", "lat": 8.6400, "lon": 98.2500, "coastal": true, "from": "2026-12-20", "to": "2027-01-03" },
+    { "name": "Bali, Indonesia (example)", "lat": -8.7180, "lon": 115.1690, "coastal": true }
+  ]
+}

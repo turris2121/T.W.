@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>What to do · Tsunami Watch</title>
+<meta name="theme-color" content="#c8102e">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="style.css">
+<style>
+  body { display: block; }
+  .doc { max-width: 720px; margin: 0 auto; padding: 8px 16px calc(40px + env(safe-area-inset-bottom, 0px)); }
+  .now { background: var(--red); color: #fff; border-radius: 14px; padding: 16px 18px; margin: 16px 0; }
+  .now h1 { margin: 0 0 8px; font-size: 22px; }
+  .now ol { margin: 0; padding-left: 22px; font-size: 17px; }
+  .now li { margin: 6px 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; margin: 12px 0; }
+  .card h2 { margin-top: 6px; }
+  .card ul { padding-left: 20px; margin: 6px 0; }
+  .card li { margin: 4px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; }
+  .scroll { overflow-x: auto; }
+  .big { font-size: 17px; font-weight: 700; }
+</style>
+</head>
+<body>
+<header class="bar">
+  <a class="brand" href="./" style="color:#fff;text-decoration:none"><span class="wave">≋</span> Tsunami Watch</a>
+  <a class="btn" href="./">Map</a>
+</header>
+
+<div class="doc">
+
+<section class="now">
+  <h1>Near the coast and you feel a strong quake, or the sea pulls back?</h1>
+  <ol>
+    <li><b>Go now.</b> Don't wait for a siren, an app or the news. Nature's warning is often the only one.</li>
+    <li><b>Go up and inland:</b> at least <b>30 m (100 ft) high</b> or <b>3 km (2 miles) inland</b>. On foot if roads are jammed.</li>
+    <li>No high ground near? Go to the <b>4th floor or higher</b> of a strong concrete building (last resort).</li>
+    <li><b>Stay there for hours.</b> Waves come in a series and the first is often not the biggest. Wait for an official all-clear.</li>
+    <li><b>Never go down to look</b> at the sea or the retreating water.</li>
+  </ol>
+</section>
+
+<section class="card">
+  <h2>Natural warning signs</h2>
+  <p class="big">"Long or strong, get gone."</p>
+  <ul>
+    <li>Shaking that makes it <b>hard to stand</b>, or that lasts <b>20 seconds or more</b>.</li>
+    <li>The sea <b>suddenly drains away</b> and exposes the seabed, reefs or fish (this happened in 2004).</li>
+    <li>A loud <b>roar</b> from the ocean, like a train or jet.</li>
+    <li>A fast rise of water or an unusual "wall" of water on the horizon.</li>
+  </ul>
+  <p class="hint">A distant earthquake can send a tsunami with <b>no shaking at all</b> where you are. That's why official alerts and this app's push notifications matter too.</p>
+</section>
+
+<section class="card">
+  <h2>When you arrive at a beach hotel</h2>
+  <ul>
+    <li>Ask the front desk: <b>"Where is the tsunami evacuation route and assembly point?"</b></li>
+    <li>Look for blue/white <b>tsunami evacuation signs</b> and walk the route once.</li>
+    <li>Find the <b>nearest high ground</b> or tall concrete building, and how long it takes to walk there.</li>
+    <li>Agree on a <b>family meeting point</b> on high ground, in case you are separated (e.g. one at the beach, one in the room).</li>
+    <li>Keep phones charged; carry ID, a copy of passports and a little cash in a small bag.</li>
+    <li>Save the local emergency numbers below and the hotel's phone number.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Before the trip</h2>
+  <ul>
+    <li>Turn on <b>Emergency / Government alerts</b> on every phone (iPhone: Settings → Notifications → bottom; Android: Settings → Safety &amp; emergency → Wireless emergency alerts).</li>
+    <li>Install <b>ntfy</b> and subscribe to the family topic (see the README) so you get this app's alerts.</li>
+    <li>Install the official app of the country you're visiting (table below).</li>
+    <li>Share your itinerary and hotel names with someone at home.</li>
+    <li>Register your trip with your embassy if your country offers it.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>During and after a quake</h2>
+  <ul>
+    <li><b>Drop, cover, hold on</b> until the shaking stops. Then, if near the coast, evacuate immediately.</li>
+    <li>Expect <b>aftershocks</b>. Stay away from damaged buildings, bridges and power lines.</li>
+    <li>Use text messages instead of calls; networks overload.</li>
+    <li>If caught in water: grab something that floats. Don't try to swim against the current.</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>Official sources &amp; emergency numbers</h2>
+  <p class="hint">Check these when you arrive; numbers can change.</p>
+  <div class="scroll">
+  <table>
+    <tr><th>Country</th><th>Emergency</th><th>Official tsunami / quake source</th></tr>
+    <tr><td>Thailand</td><td>191 police · 1669 ambulance · 1155 tourist police · 1784 disaster hotline</td><td>Thai Meteorological Dept, National Disaster Warning Center (NDWC)</td></tr>
+    <tr><td>Indonesia</td><td>112</td><td>BMKG (InaTEWS), app "Info BMKG"</td></tr>
+    <tr><td>Philippines</td><td>911</td><td>PHIVOLCS</td></tr>
+    <tr><td>Malaysia</td><td>999</td><td>MetMalaysia</td></tr>
+    <tr><td>Vietnam</td><td>113 police · 114 fire · 115 ambulance</td><td>Vietnam Institute of Earth Sciences</td></tr>
+    <tr><td>Sri Lanka</td><td>119 police · 1990 ambulance · 117 disaster hotline</td><td>Disaster Management Centre (DMC)</td></tr>
+    <tr><td>India / Maldives</td><td>112 (India) · 119 (Maldives)</td><td>INCOIS Indian Tsunami Early Warning Centre</td></tr>
+    <tr><td>Japan</td><td>110 police · 119 fire/ambulance</td><td>JMA, app "Safety tips" (Japan Tourism Agency, multilingual)</td></tr>
+    <tr><td>Chile</td><td>133 police · 131 ambulance</td><td>SHOA, SENAPRED</td></tr>
+    <tr><td>Mexico, USA, Canada</td><td>911</td><td>tsunami.gov (NOAA), USGS</td></tr>
+    <tr><td>New Zealand</td><td>111</td><td>NEMA, GeoNet</td></tr>
+    <tr><td>EU, Turkey, Greece, Portugal, Italy</td><td>112</td><td>National civil protection; EU Emergency alerts on phone</td></tr>
+  </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>What this app can and can't do</h2>
+  <ul>
+    <li>Nobody can <b>predict</b> earthquakes. This app detects them after they happen and relays official tsunami bulletins.</li>
+    <li>Alerts can arrive <b>5–30 minutes late</b> (free scheduled checks). A tsunami near the source can arrive faster than that.</li>
+    <li>So: <b>your own eyes and the natural signs come first</b>, then local sirens and authorities, then this app.</li>
+  </ul>
+</section>
+
+</div>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});</script>
+</body>
+</html>

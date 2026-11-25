@@ -1,0 +1,33 @@
+{
+  "official_tsunami": [],
+  "tsunami_info": [
+    {
+      "id": "noaa:urn:uuid:3fb9e4ea-3e56-4fb6-a0fe-69e6f56a1958:TSUNAMI INFORMATION STATEMENT NUMBER   1",
+      "center": "PTWC (Pacific Tsunami Warning Center)",
+      "bulletin": "TSUNAMI INFORMATION STATEMENT NUMBER 1",
+      "category": "Information",
+      "region": "VANUATU REGION",
+      "mag": 6.5,
+      "lat": -13.546,
+      "lon": 172.279,
+      "time": "2026-11-23T02:49:16Z",
+      "url": "https://www.tsunami.gov/events/PHEB/2026/11/23/26327000/1/WEGM42/WEGM42.txt"
+    },
+    {
+      "id": "noaa:urn:uuid:f1542e41-d857-462d-bf67-f078ce25ee4b:Tsunami Information Statement Number 1",
+      "center": "NTWC (US National Tsunami Warning Center)",
+      "bulletin": "Tsunami Information Statement Number 1",
+      "category": "Information",
+      "region": "40 miles SW of Palmer, Alaska",
+      "mag": 4.1,
+      "lat": 61.3,
+      "lon": -150.1,
+      "time": "2026-11-24T16:43:10Z",
+      "url": "https://www.tsunami.gov/events/PAAQ/2026/11/24/tp0m6e/1/WEAK53/WEAK53.txt"
+    }
+  ],
+  "gdacs": [],
+  "recent_notifications": [],
+  "feed_errors": [],
+  "updated": "2026-11-25T00:16:25Z"
+}

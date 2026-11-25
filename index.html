@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tsunami Watch</title>
+<meta name="theme-color" content="#0b2540">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="bar">
+  <div class="brand"><span class="wave">≋</span> Tsunami Watch</div>
+  <a class="btn danger" href="safety.html">What to do</a>
+</header>
+
+<div id="banner" class="banner ok">Loading official alerts…</div>
+
+<main class="layout">
+  <div id="map" aria-label="Map of recent earthquakes"></div>
+
+  <aside class="panel">
+    <section>
+      <h2>Your places</h2>
+      <ul id="places" class="list"></ul>
+      <div class="row">
+        <button id="locate" class="btn">📍 Check where I am</button>
+        <button id="addHint" class="btn ghost">+ Add place</button>
+      </div>
+      <p id="addHelp" class="hint" hidden>Long-press (or right-click) on the map to add a place on this phone only. To get push alerts for it, add it to <code>config/locations.json</code> on GitHub.</p>
+    </section>
+
+    <section>
+      <h2>Recent strong quakes <small>(M5.5+, 7 days)</small></h2>
+      <ul id="quakes" class="list"></ul>
+    </section>
+
+    <section class="layers">
+      <label><input type="checkbox" id="histToggle"> Show past tsunamis since 1900</label>
+      <div class="legend">
+        <span><i class="dot" style="background:#d7263d"></i>last hour</span>
+        <span><i class="dot" style="background:#f46036"></i>last day</span>
+        <span><i class="dot" style="background:#e3b505"></i>last week</span>
+        <span><i class="dot hist"></i>past tsunami</span>
+      </div>
+    </section>
+
+    <p class="hint">Data: USGS, NOAA tsunami warning centers, GDACS, NOAA NCEI. <span id="updated"></span><br>
+    This is a helper, not an official warning system. <b>Strong or long shaking near the coast = go to high ground. Don't wait.</b></p>
+  </aside>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
