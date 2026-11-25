@@ -438,6 +438,28 @@
   ],
   "health": [
     {
+      "id": "cdc:https://wwwnc.cdc.gov/travel/notices/level2/chikungunya-honduras",
+      "source": "CDC",
+      "level": 2,
+      "title": "Level 2 - Chikungunya in Honduras",
+      "subject": "Chikungunya in Honduras",
+      "global": false,
+      "summary": "There is an outbreak of chikungunya in El Paraíso, Honduras. You can protect yourself by preventing mosquito bites.",
+      "time": "2026-11-25T05:00:00Z",
+      "url": "https://wwwnc.cdc.gov/travel/notices/level2/chikungunya-honduras"
+    },
+    {
+      "id": "cdc:https://wwwnc.cdc.gov/travel/notices/level2/yellow-fever-south-sudan",
+      "source": "CDC",
+      "level": 2,
+      "title": "Level 2 - Yellow Fever in the Republic of South Sudan",
+      "subject": "Yellow Fever in the Republic of South Sudan",
+      "global": false,
+      "summary": "There is an outbreak of yellow fever in Yei and Morobo Counties of South Sudan.",
+      "time": "2026-11-25T05:00:00Z",
+      "url": "https://wwwnc.cdc.gov/travel/notices/level2/yellow-fever-south-sudan"
+    },
+    {
       "id": "cdc:https://wwwnc.cdc.gov/travel/notices/level1/mdr-typhoid-senegal",
       "source": "CDC",
       "level": 1,
@@ -581,17 +603,6 @@
       "url": "https://wwwnc.cdc.gov/travel/notices/level2/zika-indonesia"
     },
     {
-      "id": "cdc:https://wwwnc.cdc.gov/travel/notices/level3/ebola-democratic-republic-of-the-congo",
-      "source": "CDC",
-      "level": 3,
-      "title": "Level 3 - Ebola Bundibugyo Virus Disease in Haut-Uélé and Tshopo Provinces of the Democratic Republic of the Congo",
-      "subject": "Ebola Bundibugyo Virus Disease in Haut-Uélé and Tshopo Provinces of the Democratic Republic of the Congo",
-      "global": false,
-      "summary": "CDC recommends avoiding nonessential travel to Haut-Uélé and Tshopo provinces in the Democratic Republic of the Congo (DRC) due to the current Bundibugyo virus disease (BVD) outbreak.",
-      "time": "2026-08-04T04:00:00Z",
-      "url": "https://wwwnc.cdc.gov/travel/notices/level3/ebola-democratic-republic-of-the-congo"
-    },
-    {
       "id": "cdc:https://wwwnc.cdc.gov/travel/notices/level4/ebola-drc-provinces",
       "source": "CDC",
       "level": 4,
@@ -601,6 +612,17 @@
       "summary": "CDC recommends avoiding all travel to Ituri and Nord-Kivu (North-Kivu) provinces in the Democratic Republic of the Congo (DRC) due to the current Bundibugyo virus disease (BVD) outbreak unless traveling for humanitarian aid or emergency response.",
       "time": "2026-08-04T04:00:00Z",
       "url": "https://wwwnc.cdc.gov/travel/notices/level4/ebola-drc-provinces"
+    },
+    {
+      "id": "cdc:https://wwwnc.cdc.gov/travel/notices/level3/ebola-democratic-republic-of-the-congo",
+      "source": "CDC",
+      "level": 3,
+      "title": "Level 3 - Ebola Bundibugyo Virus Disease in Haut-Uélé and Tshopo Provinces of the Democratic Republic of the Congo",
+      "subject": "Ebola Bundibugyo Virus Disease in Haut-Uélé and Tshopo Provinces of the Democratic Republic of the Congo",
+      "global": false,
+      "summary": "CDC recommends avoiding nonessential travel to Haut-Uélé and Tshopo provinces in the Democratic Republic of the Congo (DRC) due to the current Bundibugyo virus disease (BVD) outbreak.",
+      "time": "2026-08-04T04:00:00Z",
+      "url": "https://wwwnc.cdc.gov/travel/notices/level3/ebola-democratic-republic-of-the-congo"
     },
     {
       "id": "cdc:https://wwwnc.cdc.gov/travel/notices/level2/chikungunya-costa-rica",
@@ -802,5 +824,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-25T15:57:27Z"
+  "updated": "2026-11-25T19:23:56Z"
 }
