@@ -100,6 +100,20 @@
       "current": true
     },
     {
+      "id": "gdacs:FL1104300",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Ukraine",
+      "name": "",
+      "country": "Ukraine",
+      "lat": 48.2953664,
+      "lon": 23.4466092,
+      "time": "2026-11-25T11:14:27Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104300",
+      "current": true
+    },
+    {
       "id": "gdacs:FL1104292",
       "type": "FL",
       "kind": "Flood",
@@ -788,5 +802,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-25T07:59:54Z"
+  "updated": "2026-11-25T11:45:10Z"
 }
