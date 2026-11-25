@@ -1,7 +1,7 @@
 /* Offline support: safety page always available; data is network-first. */
-var CACHE = "tw-v1";
+var CACHE = "tw-v2";
 var CORE = ["./", "index.html", "safety.html", "style.css", "app.js", "manifest.webmanifest", "icons/icon.svg",
-            "data/historical_tsunamis.json", "config/locations.json"];
+            "data/historical_tsunamis.json", "data/risk_profiles.json", "config/locations.json"];
 
 self.addEventListener("install", function (e) {
   e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(CORE); }).then(function () { return self.skipWaiting(); }));

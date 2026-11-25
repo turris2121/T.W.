@@ -16,7 +16,14 @@
   var histLayer = L.layerGroup();
   var meLayer = L.layerGroup().addTo(map);
 
-  var state = { quakes: [], history: [], configPlaces: [], localPlaces: loadLocal(), me: null };
+  var disasterLayer = L.layerGroup().addTo(map);
+
+  var state = { quakes: [], history: [], configPlaces: [], localPlaces: loadLocal(), me: null,
+                profiles: [], alerts: {}, forecasts: {}, open: {} };
+  var FORECAST = "https://api.open-meteo.com/v1/forecast?daily=temperature_2m_max,temperature_2m_min," +
+    "apparent_temperature_max,precipitation_sum,wind_gusts_10m_max&forecast_days=7&timezone=auto";
+  var LEVEL_CLASS = { "High": "hi", "Medium": "med", "Low": "low", "Very low": "vlow" };
+  var GDACS_ICON = { TC: "🌀", FL: "🌊", VO: "🌋", WF: "🔥", DR: "☀️", EQ: "〰️", TS: "🌊" };
 
   // ------------------------------------------------------------ utils
   function $(id) { return document.getElementById(id); }
@@ -81,7 +88,7 @@
   }
 
   function loadAlerts() {
-    return getJSON("data/alerts.json?" + Date.now()).then(renderBanner).catch(function () {
+    return getJSON("data/alerts.json?" + Date.now()).then(function (a) { state.alerts = a; renderBanner(a); }).catch(function () {
       var b = $("banner"); b.className = "banner warn";
       b.textContent = "Official alert summary unavailable. Check tsunami.gov and local authorities.";
     });
@@ -103,6 +110,119 @@
       b.textContent = "No active tsunami warnings in the NOAA / GDACS feeds" +
         (a.updated ? " (last change " + ago(Date.parse(a.updated)) + ")" : "") + ".";
     }
+  }
+
+  function loadProfiles() {
+    return getJSON("data/risk_profiles.json?" + Date.now()).then(function (d) { state.profiles = d.profiles || []; }).catch(function () {});
+  }
+
+  function profileFor(p) {
+    return state.profiles.filter(function (x) {
+      return x.name === p.name && Math.abs(x.lat - p.lat) < 1e-4 && Math.abs(x.lon - p.lon) < 1e-4;
+    })[0];
+  }
+
+  function fkey(p) { return p.lat.toFixed(2) + "," + p.lon.toFixed(2); }
+
+  function loadForecasts() {
+    var jobs = places().map(function (p) {
+      var k = fkey(p), f = state.forecasts[k];
+      if (f && Date.now() - f.at < 30 * 60e3) return Promise.resolve();
+      return getJSON(FORECAST + "&latitude=" + p.lat + "&longitude=" + p.lon).then(function (d) {
+        state.forecasts[k] = { at: Date.now(), daily: d.daily };
+      }).catch(function () {});
+    });
+    return Promise.all(jobs);
+  }
+
+  // Same thresholds as checker/weather.py
+  function forecastLine(p) {
+    var f = state.forecasts[fkey(p)];
+    if (!f) return "";
+    var d = f.daily, warn = [];
+    for (var i = 0; i < d.time.length; i++) {
+      var day = new Date(d.time[i] + "T12:00").toLocaleDateString(undefined, { weekday: "short" });
+      if (d.apparent_temperature_max[i] >= 41) warn.push(day + ": dangerous heat (feels " + Math.round(d.apparent_temperature_max[i]) + "°C)");
+      if (d.temperature_2m_min[i] <= -12) warn.push(day + ": severe cold (" + Math.round(d.temperature_2m_min[i]) + "°C)");
+      if (d.wind_gusts_10m_max[i] >= 90) warn.push(day + ": damaging gusts " + Math.round(d.wind_gusts_10m_max[i]) + " km/h");
+      if (d.precipitation_sum[i] >= 100) warn.push(day + ": very heavy rain " + Math.round(d.precipitation_sum[i]) + " mm");
+    }
+    var hi = Math.max.apply(null, d.temperature_2m_max), lo = Math.min.apply(null, d.temperature_2m_min);
+    var rainy = d.precipitation_sum.filter(function (x) { return x >= 5; }).length;
+    return '<div class="s">7 days: ' + Math.round(lo) + "–" + Math.round(hi) + "°C, " + rainy + " rainy day" + (rainy === 1 ? "" : "s") + "</div>" +
+      (warn.length ? '<div class="s warnline">⚠️ ' + esc(warn.join(" · ")) + "</div>" : "");
+  }
+
+  function healthFor(country) {
+    if (!country) return [];
+    var c = country.toLowerCase();
+    return (state.alerts.health || []).filter(function (n) {
+      return !n.global && n.subject.toLowerCase().indexOf(c) >= 0;
+    });
+  }
+
+  function pct(v) { return v < 0.1 ? "under 0.1%" : (v < 10 ? v.toFixed(1) : Math.round(v)) + "%"; }
+
+  function profileHTML(p) {
+    var pr = profileFor(p);
+    if (!pr) {
+      return p.src === "shared" ? '<div class="s">Risk profile is being prepared (updates within the hour).</div>' : "";
+    }
+    var h = [], th = pr.thinkhazard;
+    if (th) {
+      var chips = th.hazards.filter(function (x) { return x.rank >= 2; }).map(function (x) {
+        return '<span class="chip ' + (LEVEL_CLASS[x.level] || "") + '" title="' + esc(x.probability || "") + '">' + esc(x.name) + " · " + esc(x.level) + "</span>";
+      }).join("");
+      h.push('<div class="chips">' + (chips || '<span class="s">No notable hazards listed.</span>') + "</div>");
+      var top = th.hazards.filter(function (x) { return x.rank >= 3; });
+      if (top.length) {
+        h.push('<ul class="haz">' + top.map(function (x) {
+          return "<li><b>" + esc(x.name) + " (" + esc(x.level.toLowerCase()) + ")</b>: " + esc(x.probability || "") +
+            (x.tip ? ' <span class="tip">' + esc(x.tip) + "</span>" : "") + "</li>";
+        }).join("") + "</ul>");
+      }
+    }
+    var c = pr.climate;
+    if (c) {
+      h.push("<p><b>Weather " + esc(c.window) + "</b> (past 20 years): avg high " + Math.round(c.avg_max_c) + "°C · " +
+        c.pct_feels_35 + "% of days felt 35°C+ · " + c.pct_rain_20 + "% had heavy rain (20 mm+) · " + c.pct_gust_60 + "% strong gusts</p>");
+    }
+    var q = pr.quakes;
+    if (q) {
+      h.push("<p><b>Earthquakes</b> since " + q.since + ": " + q.m6_300km + " of M6+ within 300 km. Chance of one during a " + q.trip_days +
+        "-day stay: " + pct(q.p_trip_m6_300km) + " (" + pct(q.p_year_m6_300km) + " per year).</p>");
+    }
+    var t = pr.tsunamis;
+    if (t && pr.coastal !== false && t.count) {
+      h.push("<p><b>Tsunamis</b> since 1900 from sources within " + t.radius_km + " km: " + t.count + " (" + t.deadly + " deadly" +
+        (t.worst ? "; worst " + t.worst.year + ", " + esc(t.worst.place) + ", " + t.worst.deaths.toLocaleString() + " deaths" : "") + ").</p>");
+    }
+    var hn = healthFor(pr.country);
+    if (hn.length) {
+      h.push("<p><b>Health notices for " + esc(pr.country) + ":</b></p><ul class=\"haz\">" + hn.slice(0, 5).map(function (n) {
+        return '<li><a href="' + esc(n.url) + '" target="_blank" rel="noopener">' + esc(n.title) + "</a></li>";
+      }).join("") + "</ul>");
+    }
+    if (th) h.push('<p class="s">Area: ' + esc(th.area) + ' · source <a href="' + esc(th.url) + '" target="_blank" rel="noopener">ThinkHazard</a>, Open-Meteo, USGS, NOAA, CDC, WHO</p>');
+    var worst = th && th.hazards[0] && th.hazards[0].rank >= 4 ? th.hazards.filter(function (x) { return x.rank >= 4; }).length + " high" : "";
+    return '<details class="profile"' + (state.open[p.name] ? " open" : "") + '><summary>Risk profile' + (worst ? " · " + worst : "") + "</summary>" + h.join("") + "</details>";
+  }
+
+  function renderDisasters() {
+    disasterLayer.clearLayers();
+    if (!$("disToggle").checked) return;
+    (state.alerts.gdacs || []).forEach(function (g) {
+      if (g.type === "EQ") return; // USGS layer shows quakes
+      var col = g.level === "Red" ? "#c8102e" : g.level === "Orange" ? "#f46036" : "#1f7a4d";
+      L.marker([g.lat, g.lon], { icon: L.divIcon({ className: "dis", html: '<span style="border-color:' + col + '">' + (GDACS_ICON[g.type] || "⚠️") + "</span>", iconSize: [28, 28] }) })
+        .bindPopup("<b>" + esc(g.kind) + " · " + esc(g.level) + "</b><br>" + esc(g.title) + '<br><a href="' + esc(g.url) + '" target="_blank" rel="noopener">GDACS report</a>')
+        .addTo(disasterLayer);
+    });
+    (state.alerts.volcanoes || []).forEach(function (v) {
+      L.marker([v.lat, v.lon], { icon: L.divIcon({ className: "dis", html: '<span style="border-color:#7a3e00">🌋</span>', iconSize: [28, 28] }) })
+        .bindPopup("<b>" + esc(v.volcano) + "</b> (" + esc(v.country) + ")<br>" + esc(v.status) + '<br><a href="' + esc(v.url) + '" target="_blank" rel="noopener">Weekly volcano report</a>')
+        .addTo(disasterLayer);
+    });
   }
 
   function loadHistory() {
@@ -144,8 +264,12 @@
       if (a.best && a.best.r.lvl >= 5) li.className = "risk";
       li.innerHTML = (p.src === "local" ? '<button class="x" title="Remove" data-i="' + i + '">×</button>' : "") +
         '<div class="t">' + esc(p.name) + (p.src === "me" ? "" : p.from ? ' <span class="s">' + esc(p.from) + " → " + esc(p.to || "") + "</span>" : "") + "</div>" +
-        '<div class="s">' + esc(status) + "</div>" + (hist ? '<div class="s">' + esc(hist) + "</div>" : "");
+        '<div class="s">' + esc(status) + "</div>" + (hist ? '<div class="s">' + esc(hist) + "</div>" : "") +
+        forecastLine(p) + profileHTML(p);
+      var det = li.querySelector("details");
+      if (det) det.addEventListener("toggle", function () { state.open[p.name] = det.open; });
       li.addEventListener("click", function (ev) {
+        if (ev.target.closest("details, a")) return;
         if (ev.target.classList.contains("x")) {
           var idx = state.localPlaces.indexOf(state.localPlaces.filter(function (lp) { return lp.name === p.name && lp.lat === p.lat; })[0]);
           if (idx >= 0) { state.localPlaces.splice(idx, 1); saveLocal(); renderPlaces(); }
@@ -195,12 +319,14 @@
     });
   }
 
-  function renderAll() { renderQuakes(); renderPlaces(); }
+  function renderAll() { renderQuakes(); renderPlaces(); renderDisasters(); }
 
   // ------------------------------------------------------------ UI
   $("histToggle").addEventListener("change", function (e) {
     if (e.target.checked) { renderHistory(); histLayer.addTo(map); } else { map.removeLayer(histLayer); }
   });
+
+  $("disToggle").addEventListener("change", renderDisasters);
 
   $("addHint").addEventListener("click", function () { $("addHelp").hidden = !$("addHelp").hidden; });
 
@@ -210,6 +336,7 @@
     var coastal = window.confirm("Is it on or near the coast? (OK = yes, Cancel = inland)");
     state.localPlaces.push({ name: name, lat: +e.latlng.lat.toFixed(4), lon: +e.latlng.lng.toFixed(4), coastal: coastal });
     saveLocal(); renderPlaces();
+    loadForecasts().then(renderPlaces);
   });
 
   $("locate").addEventListener("click", function () {
@@ -222,6 +349,7 @@
       L.circleMarker([state.me.lat, state.me.lon], { radius: 8, color: "#fff", weight: 3, fillColor: "#1a73e8", fillOpacity: 1 }).addTo(meLayer);
       map.setView([state.me.lat, state.me.lon], 5);
       renderPlaces();
+      loadForecasts().then(renderPlaces);
     }, function () {
       $("locate").textContent = "📍 Check where I am";
       alert("Could not get your location. Allow location access for this site.");
@@ -230,14 +358,15 @@
 
   // ------------------------------------------------------------ start
   getJSON("config/locations.json").then(function (c) { state.configPlaces = c.locations || []; }).catch(function () {})
-    .then(function () { return Promise.all([loadQuakes(), loadAlerts(), loadHistory()]); })
+    .then(function () { return Promise.all([loadQuakes(), loadAlerts(), loadHistory(), loadProfiles()]); })
+    .then(function () { renderAll(); return loadForecasts(); })
     .then(function () {
       renderAll();
       var ps = places();
       if (ps.length) map.fitBounds(L.latLngBounds(ps.map(function (p) { return [p.lat, p.lon]; })).pad(0.6), { maxZoom: 5 });
     });
 
-  setInterval(function () { Promise.all([loadQuakes(), loadAlerts()]).then(renderAll); }, 60000);
+  setInterval(function () { Promise.all([loadQuakes(), loadAlerts(), loadForecasts()]).then(renderAll); }, 60000);
 
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
 })();

@@ -1,0 +1,407 @@
+{
+  "profiles": [
+    {
+      "name": "Home (example)",
+      "lat": 40.4168,
+      "lon": -3.7038,
+      "from": null,
+      "to": null,
+      "coastal": false,
+      "updated": "2026-11-25T02:58:59Z",
+      "errors": [],
+      "country": "Spain",
+      "region": "Community of Madrid",
+      "thinkhazard": {
+        "area": "Comunidad de Madrid, Spain",
+        "url": "https://thinkhazard.org/en/report/2729-spain-comunidad-de-madrid",
+        "hazards": [
+          {
+            "code": "WF",
+            "name": "Wildfire",
+            "level": "High",
+            "rank": 4,
+            "tip": "Check fire alerts before hiking; leave early if told to evacuate.",
+            "probability": "There is greater than a 50% chance of encountering weather that could support a significant wildfire that is likely to result in both life and property loss in any given year."
+          },
+          {
+            "code": "DG",
+            "name": "Water scarcity",
+            "level": "Medium",
+            "rank": 3,
+            "tip": "Water shortages possible; carry bottled water.",
+            "probability": "There is up to a 20% chance droughts will occur in the coming 10 years."
+          },
+          {
+            "code": "EH",
+            "name": "Extreme heat",
+            "level": "Medium",
+            "rank": 3,
+            "tip": "Plan activities for early morning/evening; hydrate; watch for heat stroke.",
+            "probability": "There is more than a 25% chance that at least one period of prolonged exposure to extreme heat, resulting in heat stress, will occur in the next five years."
+          },
+          {
+            "code": "FL",
+            "name": "River flood",
+            "level": "Low",
+            "rank": 2,
+            "tip": "Avoid riverbanks and low ground after heavy rain.",
+            "probability": "There is a chance of more than 1% that potentially damaging and life-threatening river floods occur in the coming 10 years (return period of c. 1 in 1000 years)."
+          },
+          {
+            "code": "LS",
+            "name": "Landslide",
+            "level": "Low",
+            "rank": 2,
+            "tip": "Avoid steep slopes, mountain roads and hillside stays during heavy rain.",
+            "probability": "This area has rainfall patterns, terrain slope, geology, soil, land cover and (potentially) earthquakes that make localized landslides an uncommon hazard phenomenon."
+          },
+          {
+            "code": "UF",
+            "name": "Urban flood",
+            "level": "Very low",
+            "rank": 1,
+            "tip": "Streets can flood fast in downpours; don't walk or drive through water."
+          },
+          {
+            "code": "EQ",
+            "name": "Earthquake",
+            "level": "Very low",
+            "rank": 1,
+            "tip": "Know 'drop, cover, hold on'; choose modern, well-built accommodation."
+          },
+          {
+            "code": "CF",
+            "name": "Coastal flood",
+            "level": "No Data",
+            "rank": 0,
+            "tip": "Storm surge possible; know the route to higher ground from your hotel."
+          },
+          {
+            "code": "TS",
+            "name": "Tsunami",
+            "level": "No Data",
+            "rank": 0,
+            "tip": "Learn the evacuation route; strong or long shaking = go to high ground."
+          },
+          {
+            "code": "VA",
+            "name": "Volcano",
+            "level": "No Data",
+            "rank": 0,
+            "tip": "Check volcano status; carry masks for ash; respect exclusion zones."
+          },
+          {
+            "code": "CY",
+            "name": "Cyclone",
+            "level": "No Data",
+            "rank": 0,
+            "tip": "Check cyclone season and forecasts; follow evacuation orders."
+          }
+        ]
+      },
+      "climate": {
+        "window": "24 Nov to 07 Dec",
+        "years": "2006-2025",
+        "days_sampled": 280,
+        "avg_max_c": 11.2,
+        "avg_rain_mm": 1.4,
+        "pct_feels_35": 0,
+        "pct_feels_41": 0,
+        "pct_rain_20": 1,
+        "pct_rain_50": 0,
+        "pct_gust_60": 2
+      },
+      "quakes": {
+        "since": 1976,
+        "m6_300km": 0,
+        "m7_1000km": 1,
+        "p_year_m6_300km": 0.0,
+        "p_trip_m6_300km": 0.0,
+        "p_trip_m7_1000km": 0.08,
+        "trip_days": 14
+      },
+      "tsunamis": {
+        "radius_km": 1000,
+        "count": 8,
+        "deadly": 7,
+        "worst": {
+          "year": 1980,
+          "place": "El Asnam",
+          "deaths": 5000
+        }
+      }
+    },
+    {
+      "name": "Khao Lak, Thailand (example)",
+      "lat": 8.64,
+      "lon": 98.25,
+      "from": "2026-12-20",
+      "to": "2027-01-03",
+      "coastal": true,
+      "updated": "2026-11-25T03:00:27Z",
+      "errors": [],
+      "country": "Thailand",
+      "region": "Phang-nga Province",
+      "thinkhazard": {
+        "area": "Takua Pa, Phangnga, Thailand",
+        "url": "https://thinkhazard.org/en/report/26836-thailand-phangnga-takua-pa",
+        "hazards": [
+          {
+            "code": "UF",
+            "name": "Urban flood",
+            "level": "High",
+            "rank": 4,
+            "tip": "Streets can flood fast in downpours; don't walk or drive through water.",
+            "probability": "Potentially damaging and life-threatening urban floods are expected to occur at least once in the next 10 years."
+          },
+          {
+            "code": "CF",
+            "name": "Coastal flood",
+            "level": "High",
+            "rank": 4,
+            "tip": "Storm surge possible; know the route to higher ground from your hotel.",
+            "probability": "Potentially-damaging waves are expected to flood the coast at least once in the next 10 years."
+          },
+          {
+            "code": "LS",
+            "name": "Landslide",
+            "level": "High",
+            "rank": 4,
+            "tip": "Avoid steep slopes, mountain roads and hillside stays during heavy rain.",
+            "probability": "This area has rainfall patterns, terrain slope, geology, soil, land cover and (potentially) earthquakes that make localized landslides a frequent hazard phenomenon."
+          },
+          {
+            "code": "CY",
+            "name": "Cyclone",
+            "level": "High",
+            "rank": 4,
+            "tip": "Check cyclone season and forecasts; follow evacuation orders.",
+            "probability": "There is more than a 20% chance of potentially-damaging wind speeds in this area in the next 10 years."
+          },
+          {
+            "code": "FL",
+            "name": "River flood",
+            "level": "Medium",
+            "rank": 3,
+            "tip": "Avoid riverbanks and low ground after heavy rain.",
+            "probability": "There is a chance of more than 20% that potentially damaging and life-threatening river floods occur in the coming 10 years."
+          },
+          {
+            "code": "TS",
+            "name": "Tsunami",
+            "level": "Medium",
+            "rank": 3,
+            "tip": "Learn the evacuation route; strong or long shaking = go to high ground.",
+            "probability": "There is more than a 10% chance of a potentially-damaging tsunami occurring in the next 50 years."
+          },
+          {
+            "code": "EH",
+            "name": "Extreme heat",
+            "level": "Medium",
+            "rank": 3,
+            "tip": "Plan activities for early morning/evening; hydrate; watch for heat stroke.",
+            "probability": "There is more than a 25% chance that at least one period of prolonged exposure to extreme heat, resulting in heat stress, will occur in the next five years."
+          },
+          {
+            "code": "WF",
+            "name": "Wildfire",
+            "level": "Medium",
+            "rank": 3,
+            "tip": "Check fire alerts before hiking; leave early if told to evacuate.",
+            "probability": "There is between a 10% and 50% chance of experiencing weather that could support a hazardous wildfire that may poses some risk of life and property loss in any given year."
+          },
+          {
+            "code": "EQ",
+            "name": "Earthquake",
+            "level": "Low",
+            "rank": 2,
+            "tip": "Know 'drop, cover, hold on'; choose modern, well-built accommodation.",
+            "probability": "There is a 2% chance of potentially-damaging earthquake shaking in this area in the next 50 years."
+          },
+          {
+            "code": "DG",
+            "name": "Water scarcity",
+            "level": "Very low",
+            "rank": 1,
+            "tip": "Water shortages possible; carry bottled water."
+          },
+          {
+            "code": "VA",
+            "name": "Volcano",
+            "level": "No Data",
+            "rank": 0,
+            "tip": "Check volcano status; carry masks for ash; respect exclusion zones."
+          }
+        ]
+      },
+      "climate": {
+        "window": "20 Dec to 03 Jan",
+        "years": "2006-2025",
+        "days_sampled": 300,
+        "avg_max_c": 29.6,
+        "avg_rain_mm": 2.5,
+        "pct_feels_35": 34,
+        "pct_feels_41": 0,
+        "pct_rain_20": 1,
+        "pct_rain_50": 0,
+        "pct_gust_60": 0
+      },
+      "quakes": {
+        "since": 1976,
+        "m6_300km": 0,
+        "m7_1000km": 14,
+        "p_year_m6_300km": 0.0,
+        "p_trip_m6_300km": 0.0,
+        "p_trip_m7_1000km": 1.14,
+        "trip_days": 15
+      },
+      "tsunamis": {
+        "radius_km": 1000,
+        "count": 7,
+        "deadly": 6,
+        "worst": {
+          "year": 2004,
+          "place": "Off W. Coast Of Sumatra",
+          "deaths": 227899
+        }
+      }
+    },
+    {
+      "name": "Bali, Indonesia (example)",
+      "lat": -8.718,
+      "lon": 115.169,
+      "from": null,
+      "to": null,
+      "coastal": true,
+      "updated": "2026-11-25T03:02:13Z",
+      "errors": [],
+      "country": "Indonesia",
+      "region": "Bali",
+      "thinkhazard": {
+        "area": "Bali, Indonesia",
+        "url": "https://thinkhazard.org/en/report/1513-indonesia-bali",
+        "hazards": [
+          {
+            "code": "UF",
+            "name": "Urban flood",
+            "level": "High",
+            "rank": 4,
+            "tip": "Streets can flood fast in downpours; don't walk or drive through water.",
+            "probability": "Potentially damaging and life-threatening urban floods are expected to occur at least once in the next 10 years."
+          },
+          {
+            "code": "CF",
+            "name": "Coastal flood",
+            "level": "High",
+            "rank": 4,
+            "tip": "Storm surge possible; know the route to higher ground from your hotel.",
+            "probability": "Potentially-damaging waves are expected to flood the coast at least once in the next 10 years."
+          },
+          {
+            "code": "TS",
+            "name": "Tsunami",
+            "level": "High",
+            "rank": 4,
+            "tip": "Learn the evacuation route; strong or long shaking = go to high ground.",
+            "probability": "There is more than a 40% chance of a potentially-damaging tsunami occurring in the next 50 years."
+          },
+          {
+            "code": "VA",
+            "name": "Volcano",
+            "level": "High",
+            "rank": 4,
+            "tip": "Check volcano status; carry masks for ash; respect exclusion zones.",
+            "probability": "The selected area is located at less than 50 km from a volcano for which a potentially damaging eruption has been recorded in the past 2,000 years and that future damaging eruptions are possible."
+          },
+          {
+            "code": "WF",
+            "name": "Wildfire",
+            "level": "High",
+            "rank": 4,
+            "tip": "Check fire alerts before hiking; leave early if told to evacuate.",
+            "probability": "There is greater than a 50% chance of encountering weather that could support a significant wildfire that is likely to result in both life and property loss in any given year."
+          },
+          {
+            "code": "FL",
+            "name": "River flood",
+            "level": "Medium",
+            "rank": 3,
+            "tip": "Avoid riverbanks and low ground after heavy rain.",
+            "probability": "There is a chance of more than 20% that potentially damaging and life-threatening river floods occur in the coming 10 years."
+          },
+          {
+            "code": "EQ",
+            "name": "Earthquake",
+            "level": "Medium",
+            "rank": 3,
+            "tip": "Know 'drop, cover, hold on'; choose modern, well-built accommodation.",
+            "probability": "There is a 10% chance of potentially-damaging earthquake shaking in this area in the next 50 years."
+          },
+          {
+            "code": "CY",
+            "name": "Cyclone",
+            "level": "Medium",
+            "rank": 3,
+            "tip": "Check cyclone season and forecasts; follow evacuation orders.",
+            "probability": "There is a 10% chance of potentially-damaging wind speeds in this area in the next 10 years."
+          },
+          {
+            "code": "DG",
+            "name": "Water scarcity",
+            "level": "Medium",
+            "rank": 3,
+            "tip": "Water shortages possible; carry bottled water.",
+            "probability": "There is up to a 20% chance droughts will occur in the coming 10 years."
+          },
+          {
+            "code": "EH",
+            "name": "Extreme heat",
+            "level": "Medium",
+            "rank": 3,
+            "tip": "Plan activities for early morning/evening; hydrate; watch for heat stroke.",
+            "probability": "There is more than a 25% chance that at least one period of prolonged exposure to extreme heat, resulting in heat stress, will occur in the next five years."
+          },
+          {
+            "code": "LS",
+            "name": "Landslide",
+            "level": "Low",
+            "rank": 2,
+            "tip": "Avoid steep slopes, mountain roads and hillside stays during heavy rain.",
+            "probability": "This area has rainfall patterns, terrain slope, geology, soil, land cover and (potentially) earthquakes that make localized landslides an uncommon hazard phenomenon."
+          }
+        ]
+      },
+      "climate": {
+        "window": "24 Nov to 07 Dec",
+        "years": "2006-2025",
+        "days_sampled": 280,
+        "avg_max_c": 28.6,
+        "avg_rain_mm": 7.0,
+        "pct_feels_35": 55,
+        "pct_feels_41": 0,
+        "pct_rain_20": 7,
+        "pct_rain_50": 1,
+        "pct_gust_60": 0
+      },
+      "quakes": {
+        "since": 1976,
+        "m6_300km": 24,
+        "m7_1000km": 14,
+        "p_year_m6_300km": 38.1,
+        "p_trip_m6_300km": 1.82,
+        "p_trip_m7_1000km": 1.07,
+        "trip_days": 14
+      },
+      "tsunamis": {
+        "radius_km": 1000,
+        "count": 16,
+        "deadly": 14,
+        "worst": {
+          "year": 1992,
+          "place": "Flores Sea",
+          "deaths": 2500
+        }
+      }
+    }
+  ]
+}

@@ -54,3 +54,22 @@ h2 small { text-transform: none; letter-spacing: 0; font-weight: 400; }
 .dot.hist { background: transparent; border: 2px solid #2b7bb9; }
 code { font-size: 12px; background: var(--card); padding: 1px 4px; border-radius: 4px; border: 1px solid var(--line); }
 .leaflet-popup-content { font-size: 14px; }
+
+/* risk profile */
+.list li .warnline { color: var(--red); font-weight: 600; }
+details.profile { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 6px; cursor: default; }
+details.profile summary { cursor: pointer; font-weight: 600; color: var(--navy); }
+@media (prefers-color-scheme: dark) { details.profile summary { color: #8fd0ff; } }
+details.profile p { margin: 6px 0; font-size: 13px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0 4px; }
+.chip { font-size: 12px; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap; }
+.chip.hi { background: #c8102e; color: #fff; border-color: #c8102e; }
+.chip.med { background: #f4a259; color: #3a1d00; border-color: #f4a259; }
+.chip.low { background: #f6e7a8; color: #4a3b00; border-color: #e8d27a; }
+.chip.vlow { background: transparent; color: var(--muted); }
+ul.haz { margin: 4px 0; padding-left: 18px; font-size: 13px; }
+ul.haz li { background: none; border: 0; padding: 2px 0; margin: 0; cursor: default; }
+ul.haz .tip { color: var(--muted); display: block; }
+.dis span { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; font-size: 16px;
+  background: rgba(255,255,255,.9); border: 2px solid #1f7a4d; border-radius: 50%; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.layers label { margin: 10px 0 6px; }

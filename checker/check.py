@@ -1,102 +1,61 @@
 #!/usr/bin/env python3
-"""Tsunami & earthquake watch for family trips.
+"""Travel hazard watch for family trips.
 
-Checks public feeds (USGS earthquakes, NOAA tsunami warning centers, GDACS),
-compares them with the trip locations, sends push notifications through ntfy,
-and writes data/alerts.json for the map.
+Every run (every 5 min on GitHub Actions):
+  - USGS earthquakes, NOAA tsunami bulletins, GDACS disasters
+    (cyclone, flood, wildfire, volcano, drought, quake, tsunami)
+At most hourly:
+  - CDC travel health notices + WHO outbreak news for trip countries
+  - Open-Meteo forecast extremes (heat, cold, wind, rain) for trip places
+  - Smithsonian/USGS weekly volcano reports
+Plus a pre-trip briefing push 3 days before each trip's start date.
 
+Sends push notifications through ntfy and writes data/alerts.json for the map.
 Standard library only. Python 3.9+.
 
 Usage:
   python3 checker/check.py                 # normal run (sends if NTFY_TOPIC set)
   python3 checker/check.py --dry-run       # print what would be sent
   python3 checker/check.py --dry-run --test-location "Khao Lak,8.64,98.25" --hours 168
+  python3 checker/check.py --briefing --test-location "Khao Lak,8.64,98.25"
   python3 checker/check.py --force-test    # send one test notification
 """
 
 import argparse
 import datetime as dt
-import email.utils
-import json
-import math
 import os
-import re
 import sys
 import urllib.request
-import xml.etree.ElementTree as ET
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOCATIONS_FILE = os.path.join(ROOT, "config", "locations.json")
-STATE_FILE = os.path.join(ROOT, "checker", "state.json")
-ALERTS_FILE = os.path.join(ROOT, "data", "alerts.json")
+import health
+import risk_profile
+import sources
+import weather
+from common import (ALERTS_FILE, PROFILES_FILE, STATE_FILE, USER_AGENT, haversine_km, iso, is_active,
+                    load_json, load_locations, now_utc, parse_iso, place_hash, reverse_geocode,
+                    safe_time, save_json, trip_dates)
 
-USGS_FEED = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_week.geojson"
-NOAA_FEEDS = {
-    "PTWC (Pacific Tsunami Warning Center)": "https://www.tsunami.gov/events/xml/PHEBAtom.xml",
-    "NTWC (US National Tsunami Warning Center)": "https://www.tsunami.gov/events/xml/PAAQAtom.xml",
-}
-GDACS_FEED = "https://www.gdacs.org/xml/rss.xml"
 NTFY_SERVER = os.environ.get("NTFY_SERVER", "https://ntfy.sh")
 SITE_URL = os.environ.get("SITE_URL", "")
-USER_AGENT = "tsunami-watch/1.0 (family travel safety)"
 
 TSUNAMI_SPEED_KMH = 700  # typical deep-ocean tsunami speed
-STATE_KEEP_DAYS = 14
-
-NS = {
-    "atom": "http://www.w3.org/2005/Atom",
-    "geo": "http://www.w3.org/2003/01/geo/wgs84_pos#",
-    "gdacs": "http://www.gdacs.org",
-}
+STATE_KEEP_DAYS = 21
+SLOW_EVERY_MIN = 55      # health / weather / volcano reports
+BRIEFING_DAYS_BEFORE = 3
 
 ACTION_LINE = ("If you are near the coast: go to high ground or far inland NOW. "
                "Do not wait for an official warning. Do not go to look at the sea.")
 
-
-# ---------------------------------------------------------------- helpers
-
-def now_utc():
-    return dt.datetime.now(dt.timezone.utc)
-
-
-def iso(t):
-    return t.astimezone(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def parse_iso(s):
-    return dt.datetime.strptime(s, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=dt.timezone.utc)
-
-
-def haversine_km(lat1, lon1, lat2, lon2):
-    r = 6371.0
-    p1, p2 = math.radians(lat1), math.radians(lat2)
-    dp = p2 - p1
-    dl = math.radians(lon2 - lon1)
-    a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
-    return 2 * r * math.asin(math.sqrt(a))
-
-
-def fetch(url, timeout=30):
-    req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return resp.read()
-
-
-def load_json(path, default):
-    try:
-        with open(path, encoding="utf-8") as f:
-            return json.load(f)
-    except (OSError, ValueError):
-        return default
-
-
-def save_json(path, data):
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    tmp = path + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-        f.write("\n")
-    os.replace(tmp, path)
+# GDACS: alert radius per event type (km); Orange -> high, Red -> urgent
+GDACS_RADIUS = {"EQ": 3000, "TS": 3000, "TC": 1000, "FL": 300, "VO": 300, "WF": 100}
+GDACS_ADVICE = {
+    "TC": "Follow local evacuation orders. Stay indoors away from windows; avoid the coast (storm surge).",
+    "FL": "Move to higher ground. Never walk or drive through flood water.",
+    "VO": "Respect exclusion zones; ash can close airports and harm lungs (wear a mask).",
+    "WF": "Follow evacuation orders early; avoid smoke (stay indoors, N95 mask).",
+    "EQ": "Expect aftershocks. If near the coast and shaking was strong: go to high ground.",
+    "TS": ACTION_LINE,
+}
 
 
 def fmt_minutes(km):
@@ -106,130 +65,10 @@ def fmt_minutes(km):
     return "about %.1f h" % (minutes / 60)
 
 
-# ---------------------------------------------------------------- locations
-
-def load_locations(test_location=None):
-    """Trip locations. LOCATIONS_JSON env (GitHub secret) wins over the file,
-    so the itinerary can stay private in a public repo."""
-    if test_location:
-        name, lat, lon = [p.strip() for p in test_location.split(",")]
-        return [{"name": name, "lat": float(lat), "lon": float(lon), "coastal": True}]
-    raw = os.environ.get("LOCATIONS_JSON")
-    data = json.loads(raw) if raw else load_json(LOCATIONS_FILE, {"locations": []})
-    return data.get("locations", [])
-
-
-def is_active(loc, today):
-    """Active from 2 days before the trip until 1 day after. No dates = always."""
-    try:
-        start = dt.date.fromisoformat(loc["from"]) - dt.timedelta(days=2) if loc.get("from") else None
-        end = dt.date.fromisoformat(loc["to"]) + dt.timedelta(days=1) if loc.get("to") else None
-    except ValueError:
-        return True
-    return (start is None or today >= start) and (end is None or today <= end)
-
-
-# ---------------------------------------------------------------- feeds
-
-def get_usgs():
-    data = json.loads(fetch(USGS_FEED))
-    quakes = []
-    for f in data.get("features", []):
-        p = f["properties"]
-        lon, lat, depth = f["geometry"]["coordinates"]
-        if p.get("mag") is None:
-            continue
-        quakes.append({
-            "id": f["id"],
-            "mag": float(p["mag"]),
-            "place": p.get("place") or "Unknown location",
-            "time": dt.datetime.fromtimestamp(p["time"] / 1000, dt.timezone.utc),
-            "lat": lat, "lon": lon, "depth": depth or 0,
-            "tsunami_flag": bool(p.get("tsunami")),
-            "url": p.get("url", ""),
-        })
-    return quakes
-
-
-def _text(el, path):
-    found = el.find(path, NS)
-    return (found.text or "").strip() if found is not None and found.text else ""
-
-
-def get_noaa():
-    """Tsunami bulletins from the US warning centers (PTWC covers the Pacific,
-    Caribbean and gives guidance worldwide)."""
-    msgs = []
-    for center, url in NOAA_FEEDS.items():
-        try:
-            root = ET.fromstring(fetch(url))
-        except Exception as e:  # one center failing must not stop the run
-            print("WARN: %s feed failed: %s" % (center, e), file=sys.stderr)
-            continue
-        feed_title = _text(root, "atom:title")
-        for entry in root.findall("atom:entry", NS):
-            sum_el = entry.find("atom:summary", NS)
-            summary = ET.tostring(sum_el if sum_el is not None else entry, encoding="unicode", method="text")
-            cat = re.search(r"Category:\s*([A-Za-z ]+?)\s*(?:Bulletin|$)", summary)
-            mag = re.search(r"Magnitude:\s*([\d.]+)", summary)
-            link = ""
-            for l in entry.findall("atom:link", NS):  # prefer the readable text bulletin
-                if l.get("href") and (l.get("title") == "Bulletin" or not link):
-                    link = l.get("href").strip()
-            try:
-                lat = float(_text(entry, "geo:lat"))
-                lon = float(_text(entry, "geo:long"))
-            except ValueError:
-                lat = lon = None
-            updated = _text(entry, "atom:updated") or _text(root, "atom:updated")
-            msgs.append({
-                "id": "noaa:%s:%s" % (_text(entry, "atom:id") or updated, feed_title),
-                "center": center,
-                "bulletin": re.sub(r"\s+", " ", feed_title),
-                "category": (cat.group(1).strip() if cat else "Information"),
-                "region": _text(entry, "atom:title"),
-                "mag": float(mag.group(1)) if mag else None,
-                "lat": lat, "lon": lon,
-                "time": updated,
-                "url": link or "https://www.tsunami.gov/",
-            })
-    return msgs
-
-
-def get_gdacs():
-    root = ET.fromstring(fetch(GDACS_FEED))
-    events = []
-    for item in root.iter("item"):
-        etype = _text(item, "gdacs:eventtype")
-        if etype not in ("EQ", "TS"):
-            continue
-        try:
-            lat = float(_text(item, "geo:Point/geo:lat"))
-            lon = float(_text(item, "geo:Point/geo:long"))
-        except ValueError:
-            continue
-        pub = _text(item, "pubDate")
-        try:
-            t = email.utils.parsedate_to_datetime(pub)
-        except (TypeError, ValueError):
-            t = now_utc()
-        events.append({
-            "id": "gdacs:%s" % _text(item, "guid"),
-            "type": etype,
-            "level": _text(item, "gdacs:alertlevel") or "Green",
-            "title": _text(item, "title"),
-            "lat": lat, "lon": lon,
-            "time": iso(t),
-            "url": _text(item, "link").replace("http://", "https://"),
-            "current": _text(item, "gdacs:iscurrent").lower() == "true",
-        })
-    return events
-
-
-# ---------------------------------------------------------------- rules
+# ---------------------------------------------------------------- quake / tsunami rules
 
 def quake_rules(q, loc, dist):
-    """Return (level, reason) or None. level: 5 urgent tsunami, 4 high, 3 info."""
+    """Return (level, reason) or None. level: 5 urgent, 4 high, 3 info."""
     coastal = loc.get("coastal", True)
     shallow = q["depth"] <= 100
     m = q["mag"]
@@ -246,10 +85,8 @@ def quake_rules(q, loc, dist):
     return None
 
 
-def evaluate(locations, quakes, noaa, gdacs, since):
-    """Produce a list of notification candidates, each with a stable key."""
+def eval_quakes(locations, quakes, since):
     out = []
-
     for q in quakes:
         if q["time"] < since:
             continue
@@ -277,30 +114,23 @@ def evaluate(locations, quakes, noaa, gdacs, since):
             "url": q["url"],
             "tags": "ocean,warning" if level >= 5 else "warning",
         })
+    return out
 
+
+def eval_noaa(locations, noaa, since):
+    out = []
     for m in noaa:
         if m["category"].lower() == "information" and m["mag"] is not None and m["mag"] < 6.5:
             continue
-        if m["lat"] is None:
+        if m["lat"] is None or safe_time(m["time"]) < since:
             continue
-        try:
-            if parse_iso(m["time"]) < since:
-                continue
-        except ValueError:
-            pass
         official_threat = m["category"].lower() != "information"
         reach = 12000 if official_threat else 3000
-        near = []
-        for loc in locations:
-            if not loc.get("coastal", True):
-                continue
-            d = haversine_km(m["lat"], m["lon"], loc["lat"], loc["lon"])
-            if d <= reach:
-                near.append((d, loc["name"]))
+        near = sorted((haversine_km(m["lat"], m["lon"], l["lat"], l["lon"]), l["name"])
+                      for l in locations if l.get("coastal", True))
+        near = [n for n in near if n[0] <= reach]
         if not near:
             continue
-        near.sort()
-        level = 5 if official_threat else 3
         body = ["%s: %s" % (m["center"], m["bulletin"]),
                 "Category: %s. Region: %s%s" % (m["category"], m["region"],
                                                  (" (M%.1f)" % m["mag"]) if m["mag"] else ""), ""]
@@ -309,36 +139,122 @@ def evaluate(locations, quakes, noaa, gdacs, since):
             body += ["", "Follow local authorities.", ACTION_LINE]
         out.append({
             "key": "%s:%s" % (m["id"], m["category"]),
-            "level": level,
+            "level": 5 if official_threat else 3,
             "title": "OFFICIAL TSUNAMI %s - %s" % (m["category"].upper(), m["region"]) if official_threat
                      else "Tsunami info statement - %s" % m["region"],
             "body": "\n".join(body),
             "url": m["url"],
             "tags": "rotating_light,ocean" if official_threat else "information_source",
         })
+    return out
 
+
+# ---------------------------------------------------------------- other hazards
+
+def eval_gdacs(locations, gdacs, since):
+    out = []
     for g in gdacs:
-        if g["level"] not in ("Orange", "Red") or not g["current"]:
+        radius = GDACS_RADIUS.get(g["type"])
+        if not radius or g["level"] not in ("Orange", "Red") or not g["current"]:
             continue
-        try:
-            if parse_iso(g["time"]) < since:
-                continue
-        except ValueError:
-            pass
-        near = sorted((haversine_km(g["lat"], g["lon"], l["lat"], l["lon"]), l["name"]) for l in locations)
-        near = [n for n in near if n[0] <= 3000]
+        if safe_time(g["time"]) < since:
+            continue
+        near = sorted((haversine_km(g["lat"], g["lon"], l["lat"], l["lon"]), l["name"]) for l in locations
+                      if g["type"] != "TS" or l.get("coastal", True))
+        near = [n for n in near if n[0] <= radius]
         if not near:
             continue
         out.append({
             "key": "%s:%s" % (g["id"], g["level"]),
             "level": 5 if g["level"] == "Red" else 4,
-            "title": "GDACS %s alert near %s" % (g["level"].upper(), near[0][1]),
-            "body": "%s\n\n%s" % (g["title"], "\n".join("%s: %d km away" % (n, d) for d, n in near)),
+            "title": "%s %s alert near %s" % (g["kind"].upper(), g["level"].upper(), near[0][1]),
+            "body": "%s\n\n%s\n\n%s" % (g["title"], "\n".join("%s: %d km away" % (n, d) for d, n in near),
+                                        GDACS_ADVICE.get(g["type"], "")),
             "url": g["url"],
-            "tags": "warning",
+            "tags": {"TC": "cyclone", "FL": "droplet", "VO": "volcano", "WF": "fire"}.get(g["type"], "warning"),
         })
-
     return out
+
+
+def eval_volcanoes(locations, reports):
+    out = []
+    for v in reports:
+        erupting = "erupt" in v["status"].lower()
+        radius = 100 if erupting else 50
+        near = sorted((haversine_km(v["lat"], v["lon"], l["lat"], l["lon"]), l["name"]) for l in locations)
+        near = [n for n in near if n[0] <= radius]
+        if not near:
+            continue
+        out.append({
+            "key": v["id"],
+            "level": 4 if erupting else 3,
+            "title": "Volcano %s: %s near %s" % ("ERUPTION" if erupting else "unrest", v["volcano"], near[0][1]),
+            "body": "%s\n\n%s\n\n%s" % (v["title"], "\n".join("%s: %d km away" % (n, d) for d, n in near), GDACS_ADVICE["VO"]),
+            "url": v["url"],
+            "tags": "volcano",
+        })
+    return out
+
+
+def eval_health(locations, countries, notices):
+    out = []
+    for n in notices:
+        if n["global"] or (n["source"] == "CDC" and n["level"] < 2):
+            continue
+        places = [l["name"] for l in locations if countries.get(place_hash(l)) and
+                  health.mentions_country(n["subject"], countries[place_hash(l)])]
+        if not places:
+            continue
+        lvl = n["level"] or 2
+        out.append({
+            "key": n["id"],
+            "level": 4 if lvl >= 3 else 3,
+            "title": "Health notice for %s: %s" % (places[0], n["title"]),
+            "body": "%s %s\n\n%s\n\nAffects: %s" % (
+                n["source"], ("Level %d" % n["level"]) if n["level"] else "outbreak news",
+                n["summary"], ", ".join(places)),
+            "url": n["url"],
+            "tags": "microbe",
+        })
+    return out
+
+
+def eval_weather(locations, forecasts, today):
+    out = []
+    for loc in locations:
+        fc = forecasts.get(place_hash(loc))
+        if not fc:
+            continue
+        start, end = trip_dates(loc)
+        for e in weather.extremes(fc, start, end, today=today):
+            out.append({
+                "key": "wx:%s:%s:%s:L%d" % (place_hash(loc), e["date"], e["field"], e["level"]),
+                "level": e["level"],
+                "title": "%s at %s on %s" % (e["label"], loc["name"], e["date"]),
+                "body": "%s forecast for %s on %s.\n\n%s" % (e["label"], loc["name"], e["date"], e["advice"]),
+                "url": SITE_URL,
+                "tags": "thermometer" if "temperature" in e["field"] else "cloud_with_rain" if "precip" in e["field"] else "dash",
+            })
+    return out
+
+
+def briefing_for(loc, notices, forecast, profiles):
+    p = next((x for x in profiles if risk_profile.same_place(x, loc) and not risk_profile.needs_refresh(x, loc)), None)
+    p = p or risk_profile.build(loc)
+    lines = [risk_profile.describe(p)]
+    if forecast:
+        lines.append(weather.summary(forecast))
+    hn = [n for n in health.notices_for_country(notices, p.get("country", "")) if not n["global"]]
+    if hn:
+        lines.append("Health notices: " + "; ".join(n["title"] for n in hn[:4]))
+    lines.append("Before you go: save local emergency numbers, find the hotel's evacuation route, agree a family meeting point.")
+    return {
+        "level": 3,
+        "title": "Trip briefing: %s (from %s)" % (loc["name"], loc.get("from", "now")),
+        "body": "\n".join(lines),
+        "url": (SITE_URL.rstrip("/") + "/safety.html") if SITE_URL else "",
+        "tags": "briefcase",
+    }
 
 
 # ---------------------------------------------------------------- notify
@@ -354,12 +270,8 @@ def send_ntfy(topic, note):
     }
     if note.get("url"):
         headers["Click"] = note["url"]
-    actions = []
     if SITE_URL:
-        actions.append("view, Open map, %s" % SITE_URL)
-        actions.append("view, What to do, %s" % SITE_URL.rstrip("/") + "/safety.html")
-    if actions:
-        headers["Actions"] = "; ".join(actions)
+        headers["Actions"] = "view, Open map, %s; view, What to do, %s" % (SITE_URL, SITE_URL.rstrip("/") + "/safety.html")
     req = urllib.request.Request("%s/%s" % (NTFY_SERVER.rstrip("/"), topic),
                                  data=note["body"].encode("utf-8"), headers=headers, method="POST")
     with urllib.request.urlopen(req, timeout=20) as resp:
@@ -368,11 +280,21 @@ def send_ntfy(topic, note):
 
 # ---------------------------------------------------------------- main
 
+def try_source(name, fn, errors, default):
+    try:
+        return fn()
+    except Exception as e:
+        errors.append("%s: %s" % (name, e))
+        print("WARN: %s failed: %s" % (name, e), file=sys.stderr)
+        return default
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true", help="print instead of sending; don't save state")
     ap.add_argument("--hours", type=float, default=24, help="look-back window (default 24)")
     ap.add_argument("--test-location", help='"Name,lat,lon" to use instead of the config')
+    ap.add_argument("--briefing", action="store_true", help="print the trip briefing for each place and exit")
     ap.add_argument("--force-test", action="store_true", help="send a test notification and exit")
     args = ap.parse_args()
 
@@ -383,8 +305,8 @@ def main():
             sys.exit("Set NTFY_TOPIC to send a test.")
         status = send_ntfy(topic, {
             "level": 3, "tags": "white_check_mark",
-            "title": "Tsunami Watch test",
-            "body": "Notifications are working. Real alerts arrive with urgent priority.",
+            "title": "Hazard Watch test",
+            "body": "Notifications are working. Real alerts arrive with high or urgent priority.",
             "url": SITE_URL,
         })
         print("Test sent, HTTP %s" % status)
@@ -396,25 +318,60 @@ def main():
     all_locs = load_locations(args.test_location)
     locations = [l for l in all_locs if is_active(l, today)]
     print("Active locations: %s" % (", ".join(l["name"] for l in locations) or "none"))
+    profiles = load_json(PROFILES_FILE, {"profiles": []}).get("profiles", [])
 
-    errors = []
-    quakes, gdacs = [], []
-    try:
-        quakes = get_usgs()
-    except Exception as e:
-        errors.append("USGS: %s" % e)
-    noaa = get_noaa()
-    try:
-        gdacs = get_gdacs()
-    except Exception as e:
-        errors.append("GDACS: %s" % e)
-    for e in errors:
-        print("WARN: " + e, file=sys.stderr)
+    if args.briefing:
+        notices = health.get_cdc() + health.get_who()
+        for loc in all_locs:
+            print("\n" + briefing_for(loc, notices, weather.get_forecast(loc["lat"], loc["lon"]), profiles)["body"])
+        return
 
-    # -------- notifications
     state = load_json(STATE_FILE, {"sent": {}})
     sent = state.setdefault("sent", {})
-    notes = evaluate(locations, quakes, noaa, gdacs, since)
+    old_alerts = load_json(ALERTS_FILE, {})
+    errors = []
+
+    # -------- fast sources (every run)
+    quakes = try_source("USGS", sources.get_usgs, errors, [])
+    noaa = sources.get_noaa()
+    gdacs = try_source("GDACS", sources.get_gdacs, errors, [])
+    notes = eval_quakes(locations, quakes, since) + eval_noaa(locations, noaa, since) + eval_gdacs(locations, gdacs, since)
+
+    # -------- slow sources (hourly)
+    last_slow = state.get("last_slow")
+    run_slow = args.dry_run or not last_slow or (now - safe_time(last_slow)).total_seconds() >= SLOW_EVERY_MIN * 60
+    volcanoes = old_alerts.get("volcanoes", [])
+    notices = old_alerts.get("health", [])
+    if run_slow:
+        volcanoes = try_source("Volcano reports", sources.get_volcano_reports, errors, volcanoes)
+        notices = (try_source("CDC", health.get_cdc, errors, [n for n in notices if n["source"] == "CDC"]) +
+                   try_source("WHO", health.get_who, errors, [n for n in notices if n["source"] == "WHO"]))
+        countries, forecasts = {}, {}
+        for loc in locations:
+            h = place_hash(loc)
+            prof = next((p for p in profiles if risk_profile.same_place(p, loc)), None)
+            countries[h] = loc.get("country") or (prof or {}).get("country") or reverse_geocode(loc["lat"], loc["lon"]).get("country", "")
+            forecasts[h] = try_source("Forecast", lambda: weather.get_forecast(loc["lat"], loc["lon"]), errors, None)
+        notes += eval_volcanoes(locations, volcanoes)
+        notes += eval_health(locations, countries, notices)
+        notes += eval_weather(locations, forecasts, today)
+
+        # pre-trip briefing, once per trip
+        for loc in all_locs:
+            start, _ = trip_dates(loc)
+            if not start or not (start - dt.timedelta(days=BRIEFING_DAYS_BEFORE) <= today <= start):
+                continue
+            key = "brief:%s:%s" % (place_hash(loc), loc["from"])
+            if key in sent:
+                continue
+            b = try_source("Briefing", lambda: briefing_for(loc, notices, forecasts.get(place_hash(loc)), profiles), errors, None)
+            if b:
+                b["key"] = key
+                notes.append(b)
+        if not args.dry_run:
+            state["last_slow"] = iso(now)
+
+    # -------- notifications
     new = [n for n in notes if n["key"] not in sent]
     if not topic and not args.dry_run:
         print("NTFY_TOPIC not set: printing only.")
@@ -437,31 +394,34 @@ def main():
     state["sent"] = {k: v for k, v in sent.items() if parse_iso(v) >= cutoff}
     save_json(STATE_FILE, state)
 
-    # -------- data for the map (only rewritten when content changes,
-    #          so the workflow commits/deploys only when something happened)
+    # -------- data for the map (rewritten only when content changes, so the
+    #          workflow commits/deploys only when something happened).
+    #          No place names here: this file is public.
     week = now - dt.timedelta(days=7)
     official = [m for m in noaa if m["category"].lower() != "information"]
+    map_gdacs = [g for g in gdacs if g["type"] in GDACS_RADIUS or g["type"] == "DR"]
+    map_gdacs = [g for g in map_gdacs if (g["level"] in ("Orange", "Red") and safe_time(g["time"]) >= week)
+                 or (g["current"] and g["type"] in ("TC", "FL", "VO"))]
     payload = {
-        "official_tsunami": [m for m in official if _safe_time(m["time"]) >= now - dt.timedelta(hours=48)],
-        "tsunami_info": [m for m in noaa if m not in official and _safe_time(m["time"]) >= now - dt.timedelta(hours=48)],
-        "gdacs": [g for g in gdacs if g["level"] in ("Orange", "Red") and _safe_time(g["time"]) >= week],
-        "recent_notifications": [{"title": n["title"], "level": n["level"], "url": n["url"]}
-                                 for n in notes if n["key"] in state["sent"]],
+        "official_tsunami": [m for m in official if safe_time(m["time"]) >= now - dt.timedelta(hours=48)],
+        "tsunami_info": [m for m in noaa if m not in official and safe_time(m["time"]) >= now - dt.timedelta(hours=48)],
+        "gdacs": map_gdacs,
+        "volcanoes": volcanoes,
+        "health": notices,
         "feed_errors": errors,
     }
-    old = load_json(ALERTS_FILE, {})
-    old_cmp = {k: v for k, v in old.items() if k != "updated"}
+    old_cmp = {k: v for k, v in old_alerts.items() if k != "updated"}
     if old_cmp != payload:
         payload["updated"] = iso(now)
         save_json(ALERTS_FILE, payload)
         print("alerts.json updated")
 
-
-def _safe_time(s):
+    # -------- regional risk profiles for the public places (cached; weekly refresh)
     try:
-        return parse_iso(s)
-    except ValueError:
-        return now_utc()
+        if risk_profile.refresh_public():
+            print("risk_profiles.json updated")
+    except Exception as e:
+        print("WARN: risk profiles: %s" % e, file=sys.stderr)
 
 
 if __name__ == "__main__":

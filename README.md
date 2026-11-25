@@ -1,6 +1,11 @@
-# ≋ Tsunami Watch
+# ≋ Tsunami Watch (T.W.)
 
-A free family safety tool for travel: a live map of earthquakes and tsunami alerts, phone notifications when something serious happens near the places you're staying, and clear "what to do" guidance that works offline.
+A free family safety tool for travel:
+- **Live map** of earthquakes, tsunami alerts and current disasters (cyclones, floods, volcanoes, wildfires).
+- **Phone notifications** when something serious happens near the places you're staying: quakes, tsunamis, disasters, dangerous weather, disease outbreaks.
+- **Risk profile** for each place: how likely each hazard is in that region, the usual weather on your trip dates, and earthquake and tsunami history.
+- A **pre-trip briefing** pushed 3 days before you leave.
+- Clear "what to do" guidance that works offline.
 
 > **Important:** nobody can predict earthquakes. This app *detects* them minutes after they happen and relays official tsunami bulletins. Alerts can be 5–30 minutes late. **Strong or long shaking near the coast, or the sea pulling back = go to high ground immediately.** Don't wait for any app.
 
@@ -21,15 +26,34 @@ A free family safety tool for travel: a live map of earthquakes and tsunami aler
 |---|---|
 | `index.html` + `app.js` | Map: live USGS quakes (refreshes every minute), your places with 200 km / 1000 km rings, past tsunamis since 1900, "check where I am". |
 | `safety.html` | Guidance + emergency numbers. Cached for offline use. |
-| `checker/check.py` | Runs every 5 min on GitHub Actions. Reads USGS, NOAA (PTWC/NTWC) and GDACS, and pushes alerts through ntfy. |
+| `checker/check.py` | Runs every 5 min on GitHub Actions: USGS, NOAA (PTWC/NTWC), GDACS. Hourly: CDC, WHO, Open-Meteo, volcano reports. Pushes alerts through ntfy. |
+| `checker/risk_profile.py` | Builds `data/risk_profiles.json` (refreshed weekly or when places change). |
+| `checker/sources.py`, `health.py`, `weather.py`, `common.py` | Feed readers and helpers. |
 | `config/locations.json` | The places to watch. |
 
-**Alert rules** (per place):
-- 🔴 **Urgent:** M6.5+ shallow quake within 1000 km of a coastal place, M7.5+ within 3000 km, any official NOAA tsunami warning/advisory/watch/threat, or a GDACS Red alert.
-- 🟠 **High:** M8+ within 12 000 km (ocean-crossing), M5.5+ within 200 km (shaking), USGS tsunami flag, or GDACS Orange.
-- Each event is sent once.
+**Alert rules** (per active place):
 
-Data sources: [USGS](https://earthquake.usgs.gov/), [NOAA tsunami.gov](https://www.tsunami.gov/), [GDACS](https://www.gdacs.org/), [NOAA NCEI historical tsunami database](https://www.ngdc.noaa.gov/hazard/tsu_db.shtml). Map © OpenStreetMap.
+| Hazard | 🔴 Urgent | 🟠 High | ℹ️ Normal |
+|---|---|---|---|
+| Earthquake / tsunami | M6.5+ shallow ≤1000 km (coastal), M7.5+ ≤3000 km, official NOAA tsunami warning/watch/advisory | M8+ ≤12 000 km, M5.5+ ≤200 km, USGS tsunami flag | NOAA info statement M6.5+ |
+| Cyclone / flood / volcano / wildfire (GDACS) | Red alert within 1000 / 300 / 300 / 100 km | Orange alert, same distances | |
+| Volcano weekly report | | New eruption ≤100 km | New unrest ≤50 km |
+| Weather (next 3 days, trip dates) | Feels ≥46 °C, ≤−20 °C, gusts ≥118 km/h, rain ≥200 mm/day | Feels ≥41 °C, ≤−12 °C, gusts ≥90 km/h, rain ≥100 mm/day | |
+| Health (trip country) | | CDC Level 3–4 | CDC Level 2, WHO outbreak news |
+
+Each event is sent once. The **pre-trip briefing** arrives 3 days before each `from` date.
+
+**Risk profile** (tap "Risk profile" on a place card):
+- [ThinkHazard!](https://thinkhazard.org) (World Bank GFDRR) rates 11 hazards per province (river, urban and coastal flood, earthquake, landslide, tsunami, volcano, cyclone, water scarcity, extreme heat, wildfire) as High, Medium, Low or Very low, with the probability behind each level (e.g. "10% chance of potentially-damaging earthquake shaking in the next 50 years").
+- Open-Meteo archive: how often your trip dates were very hot, very wet or windy over the past 20 years.
+- USGS: M6+ quakes within 300 km since 1976, giving the chance of one during your stay.
+- NOAA NCEI: tsunamis since 1900 from sources within 1000 km.
+
+These are long-term regional odds, not forecasts for your exact days.
+
+**Not covered** (no global live data, or no risk to travelers): locusts, crop and livestock diseases, algal blooms, sinkholes, avalanches, tornadoes. The safety page has tips for these.
+
+Data sources: [USGS](https://earthquake.usgs.gov/), [NOAA tsunami.gov](https://www.tsunami.gov/), [GDACS](https://www.gdacs.org/), [Smithsonian GVP](https://volcano.si.edu/), [CDC Travelers' Health](https://wwwnc.cdc.gov/travel/notices), [WHO Disease Outbreak News](https://www.who.int/emergencies/disease-outbreak-news), [Open-Meteo](https://open-meteo.com/), [ThinkHazard!](https://thinkhazard.org/), [NOAA NCEI](https://www.ngdc.noaa.gov/hazard/tsu_db.shtml), reverse geocoding by [OpenStreetMap Nominatim](https://nominatim.org/). Map © OpenStreetMap.
 
 ---
 
@@ -44,7 +68,7 @@ Data sources: [USGS](https://earthquake.usgs.gov/), [NOAA tsunami.gov](https://w
 2. **Pages:** repo *Settings → Pages → Source: GitHub Actions*.
 3. **Secrets:** *Settings → Secrets and variables → Actions → New repository secret*:
    - `NTFY_TOPIC`: your private, hard-to-guess topic (e.g. `family-tsunami-<random>`). Anyone who knows it can read the alerts, so share it only with family.
-   - *(optional, recommended)* `LOCATIONS_JSON`: your real trip list, same format as `config/locations.json`. This keeps your itinerary **out of the public repo**. If set, it overrides the file for alerts, and you can leave only generic places in the file (the map shows the file's places).
+   - *(optional, recommended)* `LOCATIONS_JSON`: your real trip list, same format as `config/locations.json`. This keeps your itinerary **out of the public repo**. If set, it overrides the file for alerts, and you can leave only generic places in the file (the map shows the file's places). Secret-only places get their risk profile in the pre-trip briefing push; they are never written to the repo.
 4. **Test:** *Actions → Tsunami watch → Run workflow → tick "Send a test notification"*. Your phones should buzz.
 
 ### Editing places
@@ -54,6 +78,7 @@ Edit `config/locations.json` (or the `LOCATIONS_JSON` secret) directly on GitHub
 ```
 - `coastal: false` for inland places (only shaking alerts).
 - Dates are optional. A place is watched from 2 days before `from` until 1 day after `to`. Without dates it's watched always.
+- Optional `"country": "Thailand"` skips the automatic country lookup used for health notices.
 - Get coordinates: in Google Maps, long-press a spot and copy the numbers.
 
 On the map, anyone can also long-press to add places **on their own phone** (no alerts for those).
@@ -67,6 +92,8 @@ On the map, anyone can also long-press to add places **on their own phone** (no 
 python3 checker/check.py --dry-run --hours 168                       # what would be sent
 python3 checker/check.py --dry-run --test-location "Khao Lak,8.64,98.25" --hours 168
 NTFY_TOPIC=your-topic python3 checker/check.py --force-test          # test push
+python3 checker/check.py --briefing --test-location "Khao Lak,8.64,98.25"   # pre-trip briefing text
+python3 checker/risk_profile.py --test-location "Bali,-8.72,115.17" --from 2027-07-01 --to 2027-07-14
 python3 checker/fetch_history.py                                     # refresh historical data
 python3 -m http.server 8790                                          # view the site at http://localhost:8790
 ```
