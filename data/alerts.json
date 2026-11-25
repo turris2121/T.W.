@@ -58,6 +58,20 @@
       "current": true
     },
     {
+      "id": "gdacs:FL1104299",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Uganda",
+      "name": "",
+      "country": "Uganda",
+      "lat": 0.1310412,
+      "lon": 30.0047968,
+      "time": "2026-11-25T07:17:30Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104299",
+      "current": true
+    },
+    {
       "id": "gdacs:FL1104298",
       "type": "FL",
       "kind": "Flood",
@@ -86,6 +100,20 @@
       "current": true
     },
     {
+      "id": "gdacs:FL1104292",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Türkiye",
+      "name": "",
+      "country": "Türkiye",
+      "lat": 40.8216536,
+      "lon": 29.9507184,
+      "time": "2026-11-21T12:32:41Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104292",
+      "current": true
+    },
+    {
       "id": "gdacs:TC1001350",
       "type": "TC",
       "kind": "Tropical cyclone",
@@ -107,10 +135,24 @@
       "title": "Green flood alert in Indonesia",
       "name": "",
       "country": "Indonesia",
-      "lat": 2.1923519,
-      "lon": 99.3812201,
+      "lat": 4.3685491,
+      "lon": 97.0253024,
       "time": "2026-10-29T09:29:04Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104253",
+      "current": true
+    },
+    {
+      "id": "gdacs:FL1104216",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Brazil",
+      "name": "",
+      "country": "Brazil",
+      "lat": -20.4640173,
+      "lon": -54.6162947,
+      "time": "2026-10-09T06:06:33Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104216",
       "current": true
     }
   ],
@@ -746,5 +788,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-25T03:03:54Z"
+  "updated": "2026-11-25T07:59:54Z"
 }
