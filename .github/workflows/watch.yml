@@ -32,7 +32,7 @@ jobs:
       LOCATIONS_JSON: ${{ secrets.LOCATIONS_JSON }}
       SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - name: Send test notification
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.test }}
@@ -56,6 +56,15 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Prepare website
+        if: ${{ steps.commit.outputs.changed == 'true' || github.event_name != 'schedule' }}
+        uses: actions/configure-pages@v5
+      - name: Upload website
+        if: ${{ steps.commit.outputs.changed == 'true' || github.event_name != 'schedule' }}
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
   deploy:
     needs: check
     if: ${{ needs.check.outputs.changed == 'true' || github.event_name != 'schedule' }}
@@ -64,12 +73,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v7
-        with:
-          ref: main
-      - uses: actions/configure-pages@v6
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: .
       - id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v4
