@@ -801,9 +801,6 @@
       "url": "https://www.who.int/emergencies/disease-outbreak-news/item/middle-east-respiratory-syndrome-coronavirus---kingdom-of-saudi-arabia"
     }
   ],
-  "feed_errors": [
-    "Forecast: <urlopen error _ssl.c:1063: The handshake operation timed out>",
-    "Forecast: <urlopen error _ssl.c:1063: The handshake operation timed out>"
-  ],
-  "updated": "2026-11-25T14:59:46Z"
+  "feed_errors": [],
+  "updated": "2026-11-25T15:57:27Z"
 }
