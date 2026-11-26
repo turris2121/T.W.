@@ -1,19 +1,6 @@
 {
   "official_tsunami": [],
-  "tsunami_info": [
-    {
-      "id": "noaa:urn:uuid:f1542e41-d857-462d-bf67-f078ce25ee4b:Tsunami Information Statement Number 1",
-      "center": "NTWC (US National Tsunami Warning Center)",
-      "bulletin": "Tsunami Information Statement Number 1",
-      "category": "Information",
-      "region": "40 miles SW of Palmer, Alaska",
-      "mag": 4.1,
-      "lat": 61.3,
-      "lon": -150.1,
-      "time": "2026-11-24T16:43:10Z",
-      "url": "https://www.tsunami.gov/events/PAAQ/2026/11/24/tp0m6e/1/WEAK53/WEAK53.txt"
-    }
-  ],
+  "tsunami_info": [],
   "gdacs": [
     {
       "id": "gdacs:TC1001352",
@@ -27,20 +14,6 @@
       "lon": 78.29,
       "time": "2026-11-24T07:05:20Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001352",
-      "current": true
-    },
-    {
-      "id": "gdacs:FL1104297",
-      "type": "FL",
-      "kind": "Flood",
-      "level": "Green",
-      "title": "Green flood alert in Thailand",
-      "name": "",
-      "country": "Thailand",
-      "lat": 6.8790221,
-      "lon": 100.5498542,
-      "time": "2026-11-23T13:55:00Z",
-      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104297",
       "current": true
     },
     {
@@ -69,6 +42,20 @@
       "lon": -9.4523603,
       "time": "2026-11-23T12:15:51Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104295",
+      "current": true
+    },
+    {
+      "id": "gdacs:FL1104297",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Thailand",
+      "name": "",
+      "country": "Thailand",
+      "lat": 6.8790221,
+      "lon": 100.5498542,
+      "time": "2026-11-23T13:55:00Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104297",
       "current": true
     },
     {
@@ -824,5 +811,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-26T13:57:02Z"
+  "updated": "2026-11-26T16:45:07Z"
 }
