@@ -17,6 +17,20 @@
       "current": true
     },
     {
+      "id": "gdacs:FL1104297",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Thailand",
+      "name": "",
+      "country": "Thailand",
+      "lat": 6.8790221,
+      "lon": 100.5498542,
+      "time": "2026-11-23T13:55:00Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104297",
+      "current": true
+    },
+    {
       "id": "gdacs:FL1104299",
       "type": "FL",
       "kind": "Flood",
@@ -42,20 +56,6 @@
       "lon": -9.4523603,
       "time": "2026-11-23T12:15:51Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104295",
-      "current": true
-    },
-    {
-      "id": "gdacs:FL1104297",
-      "type": "FL",
-      "kind": "Flood",
-      "level": "Green",
-      "title": "Green flood alert in Thailand",
-      "name": "",
-      "country": "Thailand",
-      "lat": 6.8790221,
-      "lon": 100.5498542,
-      "time": "2026-11-23T13:55:00Z",
-      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104297",
       "current": true
     },
     {
@@ -811,5 +811,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-26T16:45:07Z"
+  "updated": "2026-11-26T20:23:58Z"
 }
