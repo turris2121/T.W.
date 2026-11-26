@@ -121,10 +121,24 @@
       "title": "Green flood alert in Brazil",
       "name": "",
       "country": "Brazil",
-      "lat": -20.4640173,
-      "lon": -54.6162947,
+      "lat": -25.4597726,
+      "lon": -49.5270851,
       "time": "2026-10-09T06:06:33Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104216",
+      "current": true
+    },
+    {
+      "id": "gdacs:FL1104167",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Ecuador",
+      "name": "",
+      "country": "Ecuador",
+      "lat": -0.8327853,
+      "lon": -89.4321692,
+      "time": "2026-09-17T10:54:34Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104167",
       "current": true
     }
   ],
@@ -782,5 +796,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-26T01:52:50Z"
+  "updated": "2026-11-26T07:58:08Z"
 }
