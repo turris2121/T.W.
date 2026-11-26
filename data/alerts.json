@@ -100,6 +100,20 @@
       "current": true
     },
     {
+      "id": "gdacs:FL1104270",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in France",
+      "name": "",
+      "country": "France",
+      "lat": 45.835176,
+      "lon": 5.7265433,
+      "time": "2026-11-06T11:36:58Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104270",
+      "current": true
+    },
+    {
       "id": "gdacs:FL1104253",
       "type": "FL",
       "kind": "Flood",
@@ -795,9 +809,6 @@
       "url": "https://www.who.int/emergencies/disease-outbreak-news/item/middle-east-respiratory-syndrome-coronavirus---kingdom-of-saudi-arabia"
     }
   ],
-  "feed_errors": [
-    "Forecast: <urlopen error _ssl.c:1063: The handshake operation timed out>",
-    "Forecast: <urlopen error _ssl.c:1063: The handshake operation timed out>"
-  ],
-  "updated": "2026-11-26T11:38:09Z"
+  "feed_errors": [],
+  "updated": "2026-11-26T12:40:55Z"
 }
