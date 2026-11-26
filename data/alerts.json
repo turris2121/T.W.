@@ -107,8 +107,8 @@
       "title": "Green flood alert in France",
       "name": "",
       "country": "France",
-      "lat": 45.835176,
-      "lon": 5.7265433,
+      "lat": 43.1202573,
+      "lon": 6.1301614,
       "time": "2026-11-06T11:36:58Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104270",
       "current": true
@@ -125,6 +125,20 @@
       "lon": 99.3812201,
       "time": "2026-10-29T09:29:04Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104253",
+      "current": true
+    },
+    {
+      "id": "gdacs:FL1104220",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Italy",
+      "name": "",
+      "country": "Italy",
+      "lat": 40.0615028,
+      "lon": 9.0975894,
+      "time": "2026-10-10T07:04:44Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104220",
       "current": true
     },
     {
@@ -810,5 +824,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-26T12:40:55Z"
+  "updated": "2026-11-26T13:57:02Z"
 }
