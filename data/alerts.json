@@ -87,6 +87,20 @@
       "current": true
     },
     {
+      "id": "gdacs:FL1104259",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Peru",
+      "name": "",
+      "country": "Peru",
+      "lat": -5.0,
+      "lon": -80.333333,
+      "time": "2026-10-29T09:44:53Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104259",
+      "current": true
+    },
+    {
       "id": "gdacs:FL1104253",
       "type": "FL",
       "kind": "Flood",
@@ -122,8 +136,8 @@
       "title": "Green flood alert in Brazil",
       "name": "",
       "country": "Brazil",
-      "lat": -25.4597726,
-      "lon": -49.5270851,
+      "lat": -19.5687682,
+      "lon": -40.1721991,
       "time": "2026-10-09T06:06:33Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104216",
       "current": true
@@ -783,5 +797,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-27T08:07:25Z"
+  "updated": "2026-11-27T09:10:13Z"
 }
