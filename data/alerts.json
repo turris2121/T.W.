@@ -31,20 +31,6 @@
       "current": true
     },
     {
-      "id": "gdacs:FL1104299",
-      "type": "FL",
-      "kind": "Flood",
-      "level": "Green",
-      "title": "Green flood alert in Uganda",
-      "name": "",
-      "country": "Uganda",
-      "lat": 0.1310412,
-      "lon": 30.0047968,
-      "time": "2026-11-25T07:17:30Z",
-      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104299",
-      "current": true
-    },
-    {
       "id": "gdacs:FL1104295",
       "type": "FL",
       "kind": "Flood",
@@ -56,6 +42,20 @@
       "lon": -9.4523603,
       "time": "2026-11-23T12:15:51Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104295",
+      "current": true
+    },
+    {
+      "id": "gdacs:FL1104299",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Uganda",
+      "name": "",
+      "country": "Uganda",
+      "lat": 0.1310412,
+      "lon": 30.0047968,
+      "time": "2026-11-25T07:17:30Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104299",
       "current": true
     },
     {
@@ -783,5 +783,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-27T02:07:47Z"
+  "updated": "2026-11-27T08:07:25Z"
 }
