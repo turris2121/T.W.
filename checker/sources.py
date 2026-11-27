@@ -117,6 +117,8 @@ def get_gdacs():
             "time": iso(_rss_time(text_of(item, "pubDate"))),
             "url": text_of(item, "link").replace("http://", "https://"),
             "current": text_of(item, "gdacs:iscurrent").lower() == "true",
+            "eventid": text_of(item, "gdacs:eventid"),
+            "episodeid": text_of(item, "gdacs:episodeid"),
         })
     return events
 
@@ -141,4 +143,132 @@ def get_volcano_reports():
             "time": iso(_rss_time(text_of(item, "pubDate"))),
             "url": text_of(item, "guid") or text_of(item, "link"),
         })
+    return out
+
+
+# ---------------------------------------------------------------- cyclone forecast geometry
+
+GDACS_GEOMETRY = "https://www.gdacs.org/gdacsapi/api/polygons/getgeometry?eventtype=TC&eventid=%s&episodeid=%s"
+
+
+def _thin(coords, max_pts):
+    step = max(1, len(coords) // max_pts)
+    pts = coords[::step]
+    if pts[-1] != coords[-1]:
+        pts.append(coords[-1])
+    return [[round(c[1], 2), round(c[0], 2)] for c in pts]  # -> [lat, lon]
+
+
+def get_tc_geometry(eventid, episodeid):
+    """Forecast wind zones, uncertainty cone and track of a tropical cyclone
+    (GDACS, from JTWC / NHC advisories). Returns
+      {"zones": [{"kmh": 60|90|120, "class": "Green|Orange|Red", "polys": [{"time": iso, "ring": [[lat,lon],...]}]}],
+       "cone": [[[lat,lon],...]], "track": [{"cat": "TD|TS|HU", "pts": [[lat,lon],...]}]}"""
+    d = json.loads(fetch(GDACS_GEOMETRY % (eventid, episodeid), timeout=45))
+    kmh_of = {"Poly_Green": 60, "Poly_Orange": 90, "Poly_Red": 120}
+    zones, cone, track = {}, [], []
+    for f in d.get("features", []):
+        g, p = f.get("geometry") or {}, f.get("properties") or {}
+        cls = p.get("Class", "")
+        polys = []
+        if g.get("type") == "Polygon":
+            polys = [g["coordinates"]]
+        elif g.get("type") == "MultiPolygon":
+            polys = g["coordinates"]
+        if cls in kmh_of:
+            z = zones.setdefault(cls, {"kmh": kmh_of[cls], "class": cls[5:], "polys": []})
+            for poly in polys:
+                z["polys"].append({"time": p.get("polygondate", ""), "ring": _thin(poly[0], 150)})
+        elif cls == "Poly_Cones":
+            cone += [_thin(poly[0], 150) for poly in polys]
+        elif g.get("type") == "LineString":
+            track.append({"cat": p.get("polygonlabel") or "", "pts": _thin(g["coordinates"], 80)})
+    return {"zones": sorted(zones.values(), key=lambda z: z["kmh"]), "cone": cone, "track": track}
+
+
+def tc_exposure(geom, lat, lon):
+    """Strongest forecast wind zone containing the point, and when it arrives first.
+    Returns {"kmh", "class", "time"} or None."""
+    for z in sorted(geom["zones"], key=lambda z: -z["kmh"]):
+        times = sorted(p["time"] for p in z["polys"] if point_in_ring(lat, lon, p["ring"]))
+        if times:
+            return {"kmh": z["kmh"], "class": z["class"], "time": times[0]}
+    return None
+
+
+def track_distance_km(geom, lat, lon):
+    pts = [pt for seg in geom["track"] for pt in seg["pts"]]
+    if not pts:
+        return None
+    from common import haversine_km
+    return min(haversine_km(a, b, lat, lon) for a, b in pts)
+
+
+def point_in_ring(lat, lon, ring):
+    """Ray casting; ring is [[lat, lon], ...]."""
+    inside = False
+    j = len(ring) - 1
+    for i in range(len(ring)):
+        yi, xi = ring[i]
+        yj, xj = ring[j]
+        if (yi > lat) != (yj > lat) and lon < (xj - xi) * (lat - yi) / ((yj - yi) or 1e-12) + xi:
+            inside = not inside
+        j = i
+    return inside
+
+
+# ---------------------------------------------------------------- US: NWS warnings, SPC tornado outlook
+
+NWS_POINT = "https://api.weather.gov/alerts/active?point=%.4f,%.4f"
+SPC_TORNADO = "https://www.spc.noaa.gov/products/outlook/day%dotlk_torn.nolyr.geojson"
+
+# NWS event -> our level (5 urgent, 4 high, 3 normal); anything else is ignored
+NWS_LEVELS = {
+    "Tornado Warning": 5, "Extreme Wind Warning": 5, "Hurricane Warning": 5, "Storm Surge Warning": 5,
+    "Tsunami Warning": 5, "Flash Flood Emergency": 5, "Typhoon Warning": 5,
+    "Tornado Watch": 4, "Hurricane Watch": 4, "Typhoon Watch": 4, "Tropical Storm Warning": 4,
+    "Severe Thunderstorm Warning": 4, "High Wind Warning": 4, "Flash Flood Warning": 4,
+    "Storm Surge Watch": 4, "Tsunami Advisory": 4, "Blizzard Warning": 4, "Excessive Heat Warning": 4,
+    "Extreme Heat Warning": 4, "Dust Storm Warning": 4,
+    "Tropical Storm Watch": 3, "Severe Thunderstorm Watch": 3, "Wind Advisory": 3, "High Wind Watch": 3,
+    "Winter Storm Warning": 3, "Flood Warning": 3, "Tsunami Watch": 3,
+}
+
+
+def get_nws_alerts(lat, lon):
+    d = json.loads(fetch(NWS_POINT % (lat, lon), timeout=20, retries=1))
+    out = []
+    for f in d.get("features", []):
+        p = f["properties"]
+        lvl = NWS_LEVELS.get(p.get("event", ""))
+        if not lvl:
+            continue
+        out.append({"id": "nws:%s" % p.get("id", f.get("id")), "event": p["event"], "level": lvl,
+                    "headline": p.get("headline") or p["event"], "area": p.get("areaDesc", ""),
+                    "ends": p.get("ends") or p.get("expires") or "",
+                    "instruction": re.sub(r"\s+", " ", p.get("instruction") or "")[:400],
+                    "url": "https://alerts.weather.gov/"})
+    return out
+
+
+def get_spc_tornado(lat, lon):
+    """SPC tornado probability (% chance of a tornado within 25 miles) for day 1 and day 2."""
+    out = []
+    for day in (1, 2):
+        d = json.loads(fetch(SPC_TORNADO % day, timeout=20, retries=1))
+        best = None
+        for f in d.get("features", []):
+            p, g = f.get("properties", {}), f.get("geometry") or {}
+            prob = p.get("DN") or 0
+            polys = []
+            if g.get("type") == "Polygon":
+                polys = [g["coordinates"]]
+            elif g.get("type") == "MultiPolygon":
+                polys = g["coordinates"]
+            for poly in polys:
+                ring = [[c[1], c[0]] for c in poly[0]]
+                if point_in_ring(lat, lon, ring) and (best is None or prob > best["prob"]):
+                    best = {"day": day, "prob": int(prob), "valid": p.get("VALID_ISO", ""), "expire": p.get("EXPIRE_ISO", "")}
+        if best and best["prob"] >= 2:
+            out.append(best)
     return out

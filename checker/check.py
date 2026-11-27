@@ -4,7 +4,10 @@
 Every run (every 5 min on GitHub Actions):
   - USGS earthquakes, NOAA tsunami bulletins, GDACS disasters
     (cyclone, flood, wildfire, volcano, drought, quake, tsunami)
+  - hurricane/typhoon forecast wind zones vs. each place (GDACS geometry)
+  - US places: NWS warnings (tornado, hurricane, high wind, ...)
 At most hourly:
+  - US places: SPC tornado probability outlook (today, tomorrow)
   - CDC travel health notices + WHO outbreak news for trip countries
   - Open-Meteo forecast extremes (heat, cold, wind, rain) for trip places
   - Smithsonian/USGS weekly volcano reports
@@ -31,7 +34,7 @@ import health
 import risk_profile
 import sources
 import weather
-from common import (ALERTS_FILE, PROFILES_FILE, STATE_FILE, USER_AGENT, haversine_km, iso, is_active,
+from common import (ALERTS_FILE, PROFILES_FILE, STATE_FILE, USER_AGENT, haversine_km, in_us, iso, is_active,
                     load_json, load_locations, now_utc, parse_iso, place_hash, reverse_geocode,
                     safe_time, save_json, trip_dates)
 
@@ -151,9 +154,121 @@ def eval_noaa(locations, noaa, since):
 
 # ---------------------------------------------------------------- other hazards
 
-def eval_gdacs(locations, gdacs, since):
+CYCLONE_NEAR_KM = 2500  # only fetch forecast geometry for storms this close to a place
+ZONE_TEXT = {
+    120: (5, "HURRICANE-FORCE WINDS (120+ km/h) forecast",
+          "Prepare now: follow evacuation orders, move away from the coast and low ground (storm surge), "
+          "shelter in a strong building in an interior room away from windows. Stock water, food, cash, medicines; charge phones."),
+    90: (4, "Storm-force winds (90+ km/h) forecast",
+         "Avoid the coast, boats and travel during the storm. Stay indoors away from windows; expect power cuts and flooding."),
+    60: (3, "Tropical-storm winds (60+ km/h) forecast",
+         "Expect heavy rain, rough seas and flight/ferry disruption. Check local warnings."),
+}
+
+
+def eval_cyclones(locations, gdacs, geometries, errors):
+    """Hurricanes/typhoons/cyclones: is a place inside a forecast wind zone?
+    Fills `geometries` {event id: geometry}. Returns notes + set of handled event ids."""
+    out, handled = [], set()
+    for g in gdacs:
+        if g["type"] != "TC" or not g["current"] or not g.get("eventid"):
+            continue
+        near = [l for l in locations if haversine_km(g["lat"], g["lon"], l["lat"], l["lon"]) <= CYCLONE_NEAR_KM]
+        if not near and g["id"] in geometries:
+            continue
+        try:
+            geom = geometries.get(g["id"]) or sources.get_tc_geometry(g["eventid"], g["episodeid"])
+        except Exception as e:
+            errors.append("Cyclone geometry %s: %s" % (g.get("name"), e))
+            continue
+        geometries[g["id"]] = geom
+        handled.add(g["id"])
+        hits = []
+        for l in near:
+            z = sources.tc_exposure(geom, l["lat"], l["lon"])
+            if z:
+                hits.append((z["kmh"], z["time"], l["name"]))
+        if not hits:
+            continue
+        hits.sort(key=lambda h: (-h[0], h[1]))
+        level, headline, advice = ZONE_TEXT[hits[0][0]]
+        lines = ["%s (GDACS %s alert)" % (g["title"].split(",")[0], g["level"]), ""]
+        for kmh, when, name in hits:
+            lines.append("%s: inside the %d+ km/h wind zone from about %s UTC" % (name, kmh, when.replace("T", " ")[:16]))
+        lines += ["", advice]
+        out.append({
+            "key": "%s:zone:L%d" % (g["id"], level), "group": "%s:zone" % g["id"],
+            "level": level,
+            "title": "%s - %s near %s" % (headline, g.get("name") or "cyclone", hits[0][2]),
+            "body": "\n".join(lines),
+            "url": g["url"],
+            "tags": "cyclone",
+        })
+    return out, handled
+
+
+def eval_nws(locations, errors):
+    """US places: official National Weather Service warnings (every run)."""
+    out = []
+    for l in locations:
+        if not in_us(l["lat"], l["lon"]):
+            continue
+        try:
+            alerts = sources.get_nws_alerts(l["lat"], l["lon"])
+        except Exception as e:
+            errors.append("NWS: %s" % e)
+            continue
+        for a in alerts:
+            body = "%s\n\nArea: %s\nUntil: %s" % (a["headline"], a["area"][:200], a["ends"][:16].replace("T", " "))
+            if a["instruction"]:
+                body += "\n\n" + a["instruction"]
+            if a["event"] == "Tornado Warning":
+                body += "\n\nTAKE SHELTER NOW: lowest floor, interior room without windows, protect your head."
+            out.append({
+                "key": "%s:%s" % (a["id"], place_hash(l)),
+                "level": a["level"],
+                "title": "NWS %s - %s" % (a["event"].upper(), l["name"]),
+                "body": body,
+                "url": a["url"],
+                "tags": "tornado" if "Tornado" in a["event"] else "cyclone" if any(w in a["event"] for w in ("Hurricane", "Typhoon", "Tropical")) else "warning",
+            })
+    return out
+
+
+def eval_spc(locations, errors):
+    """US places: SPC chance of a tornado within 25 miles today / tomorrow (hourly)."""
+    out = []
+    for l in locations:
+        if not in_us(l["lat"], l["lon"]):
+            continue
+        try:
+            outlooks = sources.get_spc_tornado(l["lat"], l["lon"])
+        except Exception as e:
+            errors.append("SPC: %s" % e)
+            continue
+        for o in outlooks:
+            if o["prob"] < 5:
+                continue
+            level = 5 if o["prob"] >= 30 else 4 if o["prob"] >= 10 else 3
+            out.append({
+                "key": "spc:%s:%s:L%d" % (place_hash(l), o["valid"][:10], level),
+                "group": "spc:%s:%s" % (place_hash(l), o["valid"][:10]),
+                "level": level,
+                "title": "Tornado risk %s: %d%% near %s" % ("today" if o["day"] == 1 else "tomorrow", o["prob"], l["name"]),
+                "body": "NOAA Storm Prediction Center: %d%% chance of a tornado within 25 miles (40 km) of %s, %s to %s UTC.\n\n"
+                        "Know your shelter (lowest floor, interior room, no windows), keep your phone charged and watch for NWS Tornado Warnings."
+                        % (o["prob"], l["name"], o["valid"][:16].replace("T", " "), o["expire"][:16].replace("T", " ")),
+                "url": "https://www.spc.noaa.gov/products/outlook/",
+                "tags": "tornado",
+            })
+    return out
+
+
+def eval_gdacs(locations, gdacs, since, handled=()):
     out = []
     for g in gdacs:
+        if g["id"] in handled:
+            continue  # cyclone already checked against its forecast wind zones
         radius = GDACS_RADIUS.get(g["type"])
         if not radius or g["level"] not in ("Orange", "Red") or not g["current"]:
             continue
@@ -280,6 +395,26 @@ def send_ntfy(topic, note):
 
 # ---------------------------------------------------------------- main
 
+def cyclone_map(gdacs, geometries, errors):
+    """Forecast track, cone and wind zones of every current tropical cyclone, for the map."""
+    out = []
+    for g in gdacs:
+        if g["type"] != "TC" or not g["current"] or not g.get("eventid"):
+            continue
+        geom = geometries.get(g["id"])
+        if geom is None:
+            try:
+                geom = sources.get_tc_geometry(g["eventid"], g["episodeid"])
+            except Exception as e:
+                errors.append("Cyclone geometry %s: %s" % (g.get("name"), e))
+                continue
+        name = g.get("name") or ""
+        name = "Unnamed tropical cyclone (%s)" % name if (not name or name[0].isdigit()) else name
+        out.append({"id": g["id"], "name": name, "level": g["level"],
+                    "title": g["title"], "url": g["url"], "lat": g["lat"], "lon": g["lon"], **geom})
+    return out
+
+
 def try_source(name, fn, errors, default):
     try:
         return fn()
@@ -335,7 +470,10 @@ def main():
     quakes = try_source("USGS", sources.get_usgs, errors, [])
     noaa = sources.get_noaa()
     gdacs = try_source("GDACS", sources.get_gdacs, errors, [])
-    notes = eval_quakes(locations, quakes, since) + eval_noaa(locations, noaa, since) + eval_gdacs(locations, gdacs, since)
+    geometries = {}
+    cyclone_notes, handled = eval_cyclones(locations, gdacs, geometries, errors)
+    notes = (eval_quakes(locations, quakes, since) + eval_noaa(locations, noaa, since) + cyclone_notes +
+             eval_gdacs(locations, gdacs, since, handled) + eval_nws(locations, errors))
 
     # -------- slow sources (hourly)
     last_slow = state.get("last_slow")
@@ -352,6 +490,7 @@ def main():
             prof = next((p for p in profiles if risk_profile.same_place(p, loc)), None)
             countries[h] = loc.get("country") or (prof or {}).get("country") or reverse_geocode(loc["lat"], loc["lon"]).get("country", "")
             forecasts[h] = try_source("Forecast", lambda: weather.get_forecast(loc["lat"], loc["lon"]), errors, None)
+        notes += eval_spc(locations, errors)
         notes += eval_volcanoes(locations, volcanoes)
         notes += eval_health(locations, countries, notices)
         notes += eval_weather(locations, forecasts, today)
@@ -372,7 +511,10 @@ def main():
             state["last_slow"] = iso(now)
 
     # -------- notifications
-    new = [n for n in notes if n["key"] not in sent]
+    def superseded(n):  # same storm/outlook already sent at this level or higher
+        g = n.get("group")
+        return bool(g) and any("%s:L%d" % (g, lv) in sent for lv in range(n["level"], 6))
+    new = [n for n in notes if n["key"] not in sent and not superseded(n)]
     if not topic and not args.dry_run:
         print("NTFY_TOPIC not set: printing only.")
     for n in sorted(new, key=lambda n: -n["level"]):
@@ -407,6 +549,7 @@ def main():
         "tsunami_info": [m for m in noaa if m not in official and safe_time(m["time"]) >= now - dt.timedelta(hours=48)],
         "gdacs": map_gdacs,
         "volcanoes": volcanoes,
+        "cyclones": cyclone_map(gdacs, geometries, errors),
         "health": notices,
         "feed_errors": errors,
     }

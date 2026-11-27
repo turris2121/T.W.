@@ -7,7 +7,7 @@
       "from": null,
       "to": null,
       "coastal": false,
-      "updated": "2026-11-25T02:58:59Z",
+      "updated": "2026-11-27T20:07:22Z",
       "errors": [],
       "country": "Spain",
       "region": "Community of Madrid",
@@ -100,10 +100,10 @@
         ]
       },
       "climate": {
-        "window": "24 Nov to 07 Dec",
+        "window": "27 Nov to 10 Dec",
         "years": "2006-2025",
         "days_sampled": 280,
-        "avg_max_c": 11.2,
+        "avg_max_c": 10.9,
         "avg_rain_mm": 1.4,
         "pct_feels_35": 0,
         "pct_feels_41": 0,
@@ -129,7 +129,22 @@
           "place": "El Asnam",
           "deaths": 5000
         }
-      }
+      },
+      "cyclones": {
+        "radius_km": 200,
+        "years": "1980-2025",
+        "n_years": 46,
+        "window": "27 Nov to 10 Dec",
+        "storms_within_radius": 0,
+        "storms_near_dates": 0,
+        "hurricanes_near_dates": 0,
+        "p_trip_storm": 0.0,
+        "p_trip_hurricane": 0.0,
+        "season": [],
+        "trip_in_season": false,
+        "storms_500km_total": 1
+      },
+      "tornadoes": null
     },
     {
       "name": "Khao Lak, Thailand (example)",
@@ -138,7 +153,7 @@
       "from": "2026-12-20",
       "to": "2027-01-03",
       "coastal": true,
-      "updated": "2026-11-25T03:00:27Z",
+      "updated": "2026-11-27T20:08:34Z",
       "errors": [],
       "country": "Thailand",
       "region": "Phang-nga Province",
@@ -264,7 +279,27 @@
           "place": "Off W. Coast Of Sumatra",
           "deaths": 227899
         }
-      }
+      },
+      "cyclones": {
+        "radius_km": 200,
+        "years": "1980-2025",
+        "n_years": 46,
+        "window": "20 Dec to 03 Jan",
+        "storms_within_radius": 3,
+        "storms_near_dates": 1,
+        "hurricanes_near_dates": 0,
+        "p_trip_storm": 0.7,
+        "p_trip_hurricane": 0.0,
+        "season": [
+          "Oct",
+          "Nov",
+          "Dec",
+          "Jan"
+        ],
+        "trip_in_season": true,
+        "storms_500km_total": 11
+      },
+      "tornadoes": null
     },
     {
       "name": "Bali, Indonesia (example)",
@@ -273,7 +308,7 @@
       "from": null,
       "to": null,
       "coastal": true,
-      "updated": "2026-11-25T03:02:13Z",
+      "updated": "2026-11-27T20:09:54Z",
       "errors": [],
       "country": "Indonesia",
       "region": "Bali",
@@ -372,15 +407,15 @@
         ]
       },
       "climate": {
-        "window": "24 Nov to 07 Dec",
+        "window": "27 Nov to 10 Dec",
         "years": "2006-2025",
         "days_sampled": 280,
         "avg_max_c": 28.6,
-        "avg_rain_mm": 7.0,
+        "avg_rain_mm": 7.1,
         "pct_feels_35": 55,
         "pct_feels_41": 0,
-        "pct_rain_20": 7,
-        "pct_rain_50": 1,
+        "pct_rain_20": 6,
+        "pct_rain_50": 0,
         "pct_gust_60": 0
       },
       "quakes": {
@@ -401,7 +436,28 @@
           "place": "Flores Sea",
           "deaths": 2500
         }
-      }
+      },
+      "cyclones": {
+        "radius_km": 200,
+        "years": "1980-2025",
+        "n_years": 46,
+        "window": "27 Nov to 10 Dec",
+        "storms_within_radius": 2,
+        "storms_near_dates": 1,
+        "hurricanes_near_dates": 1,
+        "p_trip_storm": 0.7,
+        "p_trip_hurricane": 0.7,
+        "season": [
+          "Dec",
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr"
+        ],
+        "trip_in_season": true,
+        "storms_500km_total": 19
+      },
+      "tornadoes": null
     }
   ]
 }

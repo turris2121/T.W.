@@ -1,7 +1,7 @@
 # ≋ Tsunami Watch (T.W.)
 
 A free family safety tool for travel:
-- **Live map** of earthquakes, tsunami alerts and current disasters (cyclones, floods, volcanoes, wildfires).
+- **Live map** of earthquakes, tsunami alerts and current disasters: hurricane/typhoon tracks with forecast wind zones, floods, volcanoes, wildfires.
 - **Phone notifications** when something serious happens near the places you're staying: quakes, tsunamis, disasters, dangerous weather, disease outbreaks.
 - **Risk profile** for each place: how likely each hazard is in that region, the usual weather on your trip dates, and earthquake and tsunami history.
 - A **pre-trip briefing** pushed 3 days before you leave.
@@ -36,9 +36,12 @@ A free family safety tool for travel:
 | Hazard | 🔴 Urgent | 🟠 High | ℹ️ Normal |
 |---|---|---|---|
 | Earthquake / tsunami | M6.5+ shallow ≤1000 km (coastal), M7.5+ ≤3000 km, official NOAA tsunami warning/watch/advisory | M8+ ≤12 000 km, M5.5+ ≤200 km, USGS tsunami flag | NOAA info statement M6.5+ |
-| Cyclone / flood / volcano / wildfire (GDACS) | Red alert within 1000 / 300 / 300 / 100 km | Orange alert, same distances | |
+| Hurricane / typhoon / cyclone (forecast wind zones, all oceans) | Place inside the 120+ km/h zone | Inside the 90+ km/h zone | Inside the 60+ km/h zone |
+| US only: NWS warnings (checked every 5 min) | Tornado, Hurricane, Extreme Wind, Storm Surge warning | Tornado/Hurricane watch, Tropical Storm, Severe Thunderstorm, High Wind warning | Wind Advisory, Severe Thunderstorm/Tropical Storm watch |
+| US only: SPC tornado outlook (today, tomorrow) | 30%+ chance within 40 km | 10%+ | 5%+ |
+| Flood / volcano / wildfire (GDACS) | Red alert within 300 / 300 / 100 km | Orange alert, same distances | |
 | Volcano weekly report | | New eruption ≤100 km | New unrest ≤50 km |
-| Weather (next 3 days, trip dates) | Feels ≥46 °C, ≤−20 °C, gusts ≥118 km/h, rain ≥200 mm/day | Feels ≥41 °C, ≤−12 °C, gusts ≥90 km/h, rain ≥100 mm/day | |
+| Weather (next 3 days, trip dates) | Feels ≥46 °C, ≤−20 °C, gusts ≥118 km/h, rain ≥200 mm/day | Feels ≥41 °C, ≤−12 °C, gusts ≥90 km/h, sustained wind ≥89 km/h, rain ≥100 mm/day | Gusts ≥70 km/h, gale ≥62 km/h, thunderstorms with hail |
 | Health (trip country) | | CDC Level 3–4 | CDC Level 2, WHO outbreak news |
 
 Each event is sent once. The **pre-trip briefing** arrives 3 days before each `from` date.
@@ -48,12 +51,14 @@ Each event is sent once. The **pre-trip briefing** arrives 3 days before each `f
 - Open-Meteo archive: how often your trip dates were very hot, very wet or windy over the past 20 years.
 - USGS: M6+ quakes within 300 km since 1976, giving the chance of one during your stay.
 - NOAA NCEI: tsunamis since 1900 from sources within 1000 km.
+- NOAA IBTrACS (every storm track since 1980): chance a tropical storm or hurricane passes within 200 km during your dates, and the local season.
+- US only, NOAA SPC tornado records since 1990: tornadoes per year within 50 km, and how often one happened around your dates.
 
 These are long-term regional odds, not forecasts for your exact days.
 
-**Not covered** (no global live data, or no risk to travelers): locusts, crop and livestock diseases, algal blooms, sinkholes, avalanches, tornadoes. The safety page has tips for these.
+**Not covered** (no global live data, or no risk to travelers): locusts, crop and livestock diseases, algal blooms, sinkholes, avalanches, and tornado warnings outside the US (no other country publishes them openly; strong-wind and hail-storm forecasts still apply everywhere). The safety page has tips for these.
 
-Data sources: [USGS](https://earthquake.usgs.gov/), [NOAA tsunami.gov](https://www.tsunami.gov/), [GDACS](https://www.gdacs.org/), [Smithsonian GVP](https://volcano.si.edu/), [CDC Travelers' Health](https://wwwnc.cdc.gov/travel/notices), [WHO Disease Outbreak News](https://www.who.int/emergencies/disease-outbreak-news), [Open-Meteo](https://open-meteo.com/), [ThinkHazard!](https://thinkhazard.org/), [NOAA NCEI](https://www.ngdc.noaa.gov/hazard/tsu_db.shtml), reverse geocoding by [OpenStreetMap Nominatim](https://nominatim.org/). Map © OpenStreetMap.
+Data sources: [USGS](https://earthquake.usgs.gov/), [NOAA tsunami.gov](https://www.tsunami.gov/), [GDACS](https://www.gdacs.org/), [Smithsonian GVP](https://volcano.si.edu/), [NWS](https://www.weather.gov/), [SPC](https://www.spc.noaa.gov/), [IBTrACS](https://www.ncei.noaa.gov/products/international-best-track-archive), [CDC Travelers' Health](https://wwwnc.cdc.gov/travel/notices), [WHO Disease Outbreak News](https://www.who.int/emergencies/disease-outbreak-news), [Open-Meteo](https://open-meteo.com/), [ThinkHazard!](https://thinkhazard.org/), [NOAA NCEI](https://www.ngdc.noaa.gov/hazard/tsu_db.shtml), reverse geocoding by [OpenStreetMap Nominatim](https://nominatim.org/). Map © OpenStreetMap.
 
 ---
 
@@ -94,6 +99,7 @@ python3 checker/check.py --dry-run --test-location "Khao Lak,8.64,98.25" --hours
 NTFY_TOPIC=your-topic python3 checker/check.py --force-test          # test push
 python3 checker/check.py --briefing --test-location "Khao Lak,8.64,98.25"   # pre-trip briefing text
 python3 checker/risk_profile.py --test-location "Bali,-8.72,115.17" --from 2027-07-01 --to 2027-07-14
-python3 checker/fetch_history.py                                     # refresh historical data
+python3 checker/fetch_history.py                                     # refresh historical tsunamis
+python3 checker/build_climatology.py --download-dir /tmp/empty-dir   # refresh storm + tornado history (yearly, ~150 MB download)
 python3 -m http.server 8790                                          # view the site at http://localhost:8790
 ```

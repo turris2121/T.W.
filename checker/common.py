@@ -70,7 +70,12 @@ def fetch(url, timeout=30, retries=2, pause=2.0):
 
 
 def fetch_json(url, **kw):
-    return json.loads(fetch(url, **kw))
+    """fetch() + JSON parse; one extra try if a service returns an empty/garbled body."""
+    try:
+        return json.loads(fetch(url, **kw))
+    except ValueError:
+        time.sleep(2)
+        return json.loads(fetch(url, **kw))
 
 
 def text_of(el, path):
@@ -174,3 +179,12 @@ def reverse_geocode(lat, lon, lang="en"):
     }
     _GEO_CACHE[key] = out
     return out
+
+
+# US states and territories (NWS / SPC coverage), rough boxes
+US_BOXES = [(24.0, 50.0, -125.0, -66.0), (51.0, 72.0, -170.0, -129.0), (18.5, 22.5, -161.0, -154.0),
+            (17.5, 18.7, -67.5, -64.5), (13.0, 15.5, 144.0, 146.5), (-14.6, -14.0, -171.0, -169.0)]
+
+
+def in_us(lat, lon):
+    return any(a <= lat <= b and c <= lon <= d for a, b, c, d in US_BOXES)

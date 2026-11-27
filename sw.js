@@ -1,5 +1,5 @@
 /* Offline support: safety page always available; data is network-first. */
-var CACHE = "tw-v2";
+var CACHE = "tw-v3";
 var CORE = ["./", "index.html", "safety.html", "style.css", "app.js", "manifest.webmanifest", "icons/icon.svg",
             "data/historical_tsunamis.json", "data/risk_profiles.json", "config/locations.json"];
 

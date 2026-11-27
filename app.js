@@ -21,7 +21,7 @@
   var state = { quakes: [], history: [], configPlaces: [], localPlaces: loadLocal(), me: null,
                 profiles: [], alerts: {}, forecasts: {}, open: {} };
   var FORECAST = "https://api.open-meteo.com/v1/forecast?daily=temperature_2m_max,temperature_2m_min," +
-    "apparent_temperature_max,precipitation_sum,wind_gusts_10m_max&forecast_days=7&timezone=auto";
+    "apparent_temperature_max,precipitation_sum,wind_gusts_10m_max,wind_speed_10m_max,weather_code&forecast_days=7&timezone=auto";
   var LEVEL_CLASS = { "High": "hi", "Medium": "med", "Low": "low", "Very low": "vlow" };
   var GDACS_ICON = { TC: "🌀", FL: "🌊", VO: "🌋", WF: "🔥", DR: "☀️", EQ: "〰️", TS: "🌊" };
 
@@ -145,11 +145,16 @@
       if (d.apparent_temperature_max[i] >= 41) warn.push(day + ": dangerous heat (feels " + Math.round(d.apparent_temperature_max[i]) + "°C)");
       if (d.temperature_2m_min[i] <= -12) warn.push(day + ": severe cold (" + Math.round(d.temperature_2m_min[i]) + "°C)");
       if (d.wind_gusts_10m_max[i] >= 90) warn.push(day + ": damaging gusts " + Math.round(d.wind_gusts_10m_max[i]) + " km/h");
+      else if (d.wind_gusts_10m_max[i] >= 70) warn.push(day + ": strong gusts " + Math.round(d.wind_gusts_10m_max[i]) + " km/h (boats/ferries may stop)");
+      if (d.wind_speed_10m_max && d.wind_speed_10m_max[i] >= 62) warn.push(day + ": gale-force wind " + Math.round(d.wind_speed_10m_max[i]) + " km/h");
+      if (d.weather_code && (d.weather_code[i] === 96 || d.weather_code[i] === 99)) warn.push(day + ": thunderstorms with hail");
       if (d.precipitation_sum[i] >= 100) warn.push(day + ": very heavy rain " + Math.round(d.precipitation_sum[i]) + " mm");
     }
     var hi = Math.max.apply(null, d.temperature_2m_max), lo = Math.min.apply(null, d.temperature_2m_min);
+    var gust = Math.max.apply(null, d.wind_gusts_10m_max);
     var rainy = d.precipitation_sum.filter(function (x) { return x >= 5; }).length;
-    return '<div class="s">7 days: ' + Math.round(lo) + "–" + Math.round(hi) + "°C, " + rainy + " rainy day" + (rainy === 1 ? "" : "s") + "</div>" +
+    return '<div class="s">7 days: ' + Math.round(lo) + "–" + Math.round(hi) + "°C, " + rainy + " rainy day" + (rainy === 1 ? "" : "s") +
+      ", gusts up to " + Math.round(gust) + " km/h</div>" +
       (warn.length ? '<div class="s warnline">⚠️ ' + esc(warn.join(" · ")) + "</div>" : "");
   }
 
@@ -192,6 +197,20 @@
       h.push("<p><b>Earthquakes</b> since " + q.since + ": " + q.m6_300km + " of M6+ within 300 km. Chance of one during a " + q.trip_days +
         "-day stay: " + pct(q.p_trip_m6_300km) + " (" + pct(q.p_year_m6_300km) + " per year).</p>");
     }
+    var cy = pr.cyclones;
+    if (cy && cy.storms_500km_total) {
+      h.push("<p><b>Hurricanes / typhoons</b>: chance one passes within " + cy.radius_km + " km during " + esc(cy.window) + ": " +
+        pct(cy.p_trip_storm) + " (hurricane-strength " + pct(cy.p_trip_hurricane) + "). Season here: " +
+        (cy.season.length ? cy.season[0] + "–" + cy.season[cy.season.length - 1] : "storms are rare") +
+        (cy.trip_in_season ? ' · <b class="warnline">your dates are in season</b>' : "") + ".</p>");
+    } else if (cy) {
+      h.push("<p><b>Hurricanes / typhoons</b>: none passed within 500 km since 1980.</p>");
+    }
+    var tn = pr.tornadoes;
+    if (tn) {
+      h.push("<p><b>Tornadoes</b> within " + tn.radius_km + " km (" + tn.years + "): " + tn.per_year + " per year, " + tn.strong_ef2plus +
+        " strong (EF2+). Around your dates: in " + pct(tn.p_trip) + " of years.</p>");
+    }
     var t = pr.tsunamis;
     if (t && pr.coastal !== false && t.count) {
       h.push("<p><b>Tsunamis</b> since 1900 from sources within " + t.radius_km + " km: " + t.count + " (" + t.deadly + " deadly" +
@@ -208,9 +227,53 @@
     return '<details class="profile"' + (state.open[p.name] ? " open" : "") + '><summary>Risk profile' + (worst ? " · " + worst : "") + "</summary>" + h.join("") + "</details>";
   }
 
+  // US places: official NWS warnings, fetched live in the browser
+  function inUS(lat, lon) {
+    return [[24, 50, -125, -66], [51, 72, -170, -129], [18.5, 22.5, -161, -154], [17.5, 18.7, -67.5, -64.5], [13, 15.5, 144, 146.5]]
+      .some(function (b) { return lat >= b[0] && lat <= b[1] && lon >= b[2] && lon <= b[3]; });
+  }
+  var NWS_EVENTS = /Tornado|Hurricane|Typhoon|Tropical Storm|Extreme Wind|High Wind|Wind Advisory|Severe Thunderstorm|Storm Surge|Flash Flood|Tsunami|Blizzard|Heat/;
+  function loadNWS() {
+    return Promise.all(places().filter(function (p) { return inUS(p.lat, p.lon); }).map(function (p) {
+      return fetch("https://api.weather.gov/alerts/active?point=" + p.lat.toFixed(4) + "," + p.lon.toFixed(4), { headers: { Accept: "application/geo+json" } })
+        .then(function (r) { return r.json(); }).then(function (d) {
+          state.nws = state.nws || {};
+          state.nws[fkey(p)] = (d.features || []).map(function (f) { return f.properties; })
+            .filter(function (a) { return NWS_EVENTS.test(a.event); });
+        }).catch(function () {});
+    }));
+  }
+  function nwsLine(p) {
+    var list = (state.nws || {})[fkey(p)] || [];
+    if (!list.length) return inUS(p.lat, p.lon) ? '<div class="s">No active NWS warnings.</div>' : "";
+    return list.map(function (a) {
+      return '<div class="s warnline">🚨 ' + esc(a.event) + (a.ends || a.expires ? " until " + new Date(a.ends || a.expires).toLocaleString() : "") + "</div>";
+    }).join("");
+  }
+
+  var ZONE_STYLE = { Green: "#1f9d55", Orange: "#f46036", Red: "#c8102e" };
+  function renderCyclones() {
+    (state.alerts.cyclones || []).forEach(function (c) {
+      (c.cone || []).forEach(function (ring) {
+        L.polygon(ring, { color: "#555", weight: 1, dashArray: "3 4", fillOpacity: 0.04, interactive: false }).addTo(disasterLayer);
+      });
+      (c.zones || []).forEach(function (z) {
+        z.polys.forEach(function (pz) {
+          L.polygon(pz.ring, { color: ZONE_STYLE[z.class] || "#888", weight: 0.8, fillOpacity: 0.12 })
+            .bindPopup("<b>" + esc(c.name) + "</b><br>" + z.kmh + "+ km/h winds forecast around " + esc((pz.time || "").replace("T", " ").slice(0, 16)) + " UTC")
+            .addTo(disasterLayer);
+        });
+      });
+      (c.track || []).forEach(function (seg) {
+        L.polyline(seg.pts, { color: seg.cat === "HU" ? "#c8102e" : seg.cat === "TS" ? "#f46036" : "#1f9d55", weight: 3 }).addTo(disasterLayer);
+      });
+    });
+  }
+
   function renderDisasters() {
     disasterLayer.clearLayers();
     if (!$("disToggle").checked) return;
+    renderCyclones();
     (state.alerts.gdacs || []).forEach(function (g) {
       if (g.type === "EQ") return; // USGS layer shows quakes
       var col = g.level === "Red" ? "#c8102e" : g.level === "Orange" ? "#f46036" : "#1f7a4d";
@@ -265,7 +328,7 @@
       li.innerHTML = (p.src === "local" ? '<button class="x" title="Remove" data-i="' + i + '">×</button>' : "") +
         '<div class="t">' + esc(p.name) + (p.src === "me" ? "" : p.from ? ' <span class="s">' + esc(p.from) + " → " + esc(p.to || "") + "</span>" : "") + "</div>" +
         '<div class="s">' + esc(status) + "</div>" + (hist ? '<div class="s">' + esc(hist) + "</div>" : "") +
-        forecastLine(p) + profileHTML(p);
+        nwsLine(p) + forecastLine(p) + profileHTML(p);
       var det = li.querySelector("details");
       if (det) det.addEventListener("toggle", function () { state.open[p.name] = det.open; });
       li.addEventListener("click", function (ev) {
@@ -336,7 +399,7 @@
     var coastal = window.confirm("Is it on or near the coast? (OK = yes, Cancel = inland)");
     state.localPlaces.push({ name: name, lat: +e.latlng.lat.toFixed(4), lon: +e.latlng.lng.toFixed(4), coastal: coastal });
     saveLocal(); renderPlaces();
-    loadForecasts().then(renderPlaces);
+    Promise.all([loadForecasts(), loadNWS()]).then(renderPlaces);
   });
 
   $("locate").addEventListener("click", function () {
@@ -349,7 +412,7 @@
       L.circleMarker([state.me.lat, state.me.lon], { radius: 8, color: "#fff", weight: 3, fillColor: "#1a73e8", fillOpacity: 1 }).addTo(meLayer);
       map.setView([state.me.lat, state.me.lon], 5);
       renderPlaces();
-      loadForecasts().then(renderPlaces);
+      Promise.all([loadForecasts(), loadNWS()]).then(renderPlaces);
     }, function () {
       $("locate").textContent = "📍 Check where I am";
       alert("Could not get your location. Allow location access for this site.");
@@ -359,14 +422,14 @@
   // ------------------------------------------------------------ start
   getJSON("config/locations.json").then(function (c) { state.configPlaces = c.locations || []; }).catch(function () {})
     .then(function () { return Promise.all([loadQuakes(), loadAlerts(), loadHistory(), loadProfiles()]); })
-    .then(function () { renderAll(); return loadForecasts(); })
+    .then(function () { renderAll(); return Promise.all([loadForecasts(), loadNWS()]); })
     .then(function () {
       renderAll();
       var ps = places();
       if (ps.length) map.fitBounds(L.latLngBounds(ps.map(function (p) { return [p.lat, p.lon]; })).pad(0.6), { maxZoom: 5 });
     });
 
-  setInterval(function () { Promise.all([loadQuakes(), loadAlerts(), loadForecasts()]).then(renderAll); }, 60000);
+  setInterval(function () { Promise.all([loadQuakes(), loadAlerts(), loadForecasts(), loadNWS()]).then(renderAll); }, 60000);
 
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
 })();

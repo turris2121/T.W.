@@ -40,7 +40,7 @@
     </section>
 
     <section class="layers">
-      <label><input type="checkbox" id="disToggle" checked> Current disasters (cyclones, floods, volcanoes, fires)</label>
+      <label><input type="checkbox" id="disToggle" checked> Current disasters (hurricanes, floods, volcanoes, fires)</label>
       <label><input type="checkbox" id="histToggle"> Past tsunamis since 1900</label>
       <div class="legend">
         <span><i class="dot" style="background:#d7263d"></i>quake last hour</span>
@@ -49,10 +49,11 @@
         <span><i class="dot hist"></i>past tsunami</span>
         <span>🌀 cyclone</span><span>🌊 flood</span><span>🌋 volcano</span><span>🔥 wildfire</span><span>☀️ drought</span>
       </div>
-      <p class="hint">Disaster ring colour = GDACS alert level: green, <span style="color:#f46036">orange</span>, <span style="color:#c8102e">red</span>.</p>
+      <p class="hint">Disaster ring colour = GDACS alert level: green, <span style="color:#f46036">orange</span>, <span style="color:#c8102e">red</span>.
+      Hurricanes/typhoons show the forecast track (red = hurricane strength), dashed uncertainty cone and wind zones: <span style="color:#1f9d55">60+</span>, <span style="color:#f46036">90+</span>, <span style="color:#c8102e">120+ km/h</span>. US places also show live NWS warnings (tornado, hurricane, high wind).</p>
     </section>
 
-    <p class="hint">Data: USGS, NOAA tsunami warning centers, GDACS, Smithsonian GVP, CDC, WHO, Open-Meteo, ThinkHazard (World Bank), NOAA NCEI. <span id="updated"></span><br>
+    <p class="hint">Data: USGS, NOAA tsunami warning centers, GDACS, Smithsonian GVP, NWS/SPC, IBTrACS, CDC, WHO, Open-Meteo, ThinkHazard (World Bank), NOAA NCEI. <span id="updated"></span><br>
     This is a helper, not an official warning system. <b>Strong or long shaking near the coast = go to high ground. Don't wait.</b></p>
   </aside>
 </main>
