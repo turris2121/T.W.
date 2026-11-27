@@ -73,20 +73,6 @@
       "current": true
     },
     {
-      "id": "gdacs:TC1001350",
-      "type": "TC",
-      "kind": "Tropical cyclone",
-      "level": "Green",
-      "title": "Green notification for tropical cyclone XAVIER-26. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (0 in Tropical Storm).",
-      "name": "XAVIER-26",
-      "country": "Cook Islands",
-      "lat": -11.8,
-      "lon": -168.8,
-      "time": "2026-11-15T08:51:43Z",
-      "url": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001350",
-      "current": true
-    },
-    {
       "id": "gdacs:FL1104270",
       "type": "FL",
       "kind": "Flood",
@@ -811,5 +797,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-26T23:55:37Z"
+  "updated": "2026-11-27T00:47:48Z"
 }
