@@ -35,22 +35,6 @@
       "episodeid": "2"
     },
     {
-      "id": "gdacs:FL1104295",
-      "type": "FL",
-      "kind": "Flood",
-      "level": "Green",
-      "title": "Green flood alert in Ireland",
-      "name": "",
-      "country": "Ireland",
-      "lat": 51.6797696,
-      "lon": -9.4523603,
-      "time": "2026-11-23T12:15:51Z",
-      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104295",
-      "current": true,
-      "eventid": "1104295",
-      "episodeid": "1"
-    },
-    {
       "id": "gdacs:FL1104299",
       "type": "FL",
       "kind": "Flood",
@@ -64,6 +48,22 @@
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104299",
       "current": true,
       "eventid": "1104299",
+      "episodeid": "1"
+    },
+    {
+      "id": "gdacs:FL1104295",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Ireland",
+      "name": "",
+      "country": "Ireland",
+      "lat": 51.6797696,
+      "lon": -9.4523603,
+      "time": "2026-11-23T12:15:51Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104295",
+      "current": true,
+      "eventid": "1104295",
       "episodeid": "1"
     },
     {
@@ -17245,5 +17245,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-27T22:26:35Z"
+  "updated": "2026-11-27T23:20:26Z"
 }
