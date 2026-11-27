@@ -432,7 +432,7 @@
   "cyclones": [
     {
       "id": "gdacs:TC1001352",
-      "name": "03-20262027-27",
+      "name": "Unnamed tropical cyclone (03-20262027-27)",
       "level": "Green",
       "title": "Green notification for tropical cyclone 03-20262027-27. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (0 in Tropical Storm).",
       "url": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001352",
@@ -17245,5 +17245,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-27T20:12:01Z"
+  "updated": "2026-11-27T20:12:50Z"
 }
