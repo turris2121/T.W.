@@ -32,7 +32,7 @@
       "type": "FL",
       "kind": "Flood",
       "level": "Green",
-      "title": "Orange flood alert in Bolivia",
+      "title": "Green flood alert in Bolivia",
       "name": "",
       "country": "Bolivia",
       "lat": -17.4012458,
@@ -859,5 +859,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-28T14:21:59Z"
+  "updated": "2026-11-28T16:31:55Z"
 }
