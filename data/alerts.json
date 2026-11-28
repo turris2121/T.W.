@@ -3,22 +3,6 @@
   "tsunami_info": [],
   "gdacs": [
     {
-      "id": "gdacs:TC1001352",
-      "type": "TC",
-      "kind": "Tropical cyclone",
-      "level": "Green",
-      "title": "Green notification for tropical cyclone 03-20262027-27. Population affected by Category 1 (120 km/h) wind speeds or higher is 0  (0 in Tropical Storm).",
-      "name": "03-20262027-27",
-      "country": "",
-      "lat": -9.35,
-      "lon": 78.29,
-      "time": "2026-11-24T07:05:20Z",
-      "url": "https://www.gdacs.org/report.aspx?eventtype=TC&eventid=1001352",
-      "current": true,
-      "eventid": "1001352",
-      "episodeid": "1"
-    },
-    {
       "id": "gdacs:FL1104297",
       "type": "FL",
       "kind": "Flood",
@@ -769,9 +753,6 @@
       "url": "https://www.who.int/emergencies/disease-outbreak-news/item/middle-east-respiratory-syndrome-coronavirus---kingdom-of-saudi-arabia"
     }
   ],
-  "feed_errors": [
-    "Cyclone geometry 03-20262027-27: The read operation timed out",
-    "Cyclone geometry 03-20262027-27: The read operation timed out"
-  ],
-  "updated": "2026-11-28T05:15:17Z"
+  "feed_errors": [],
+  "updated": "2026-11-28T06:12:07Z"
 }
