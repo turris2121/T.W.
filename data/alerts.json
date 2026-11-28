@@ -17196,6 +17196,8 @@
       "url": "https://www.who.int/emergencies/disease-outbreak-news/item/middle-east-respiratory-syndrome-coronavirus---kingdom-of-saudi-arabia"
     }
   ],
-  "feed_errors": [],
-  "updated": "2026-11-28T03:17:15Z"
+  "feed_errors": [
+    "Forecast: <urlopen error _ssl.c:1063: The handshake operation timed out>"
+  ],
+  "updated": "2026-11-28T04:15:40Z"
 }
