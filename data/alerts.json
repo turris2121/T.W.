@@ -1,6 +1,19 @@
 {
   "official_tsunami": [],
-  "tsunami_info": [],
+  "tsunami_info": [
+    {
+      "id": "noaa:urn:uuid:7059c5c5-179b-4a73-af52-0f6a7791a9d7:Tsunami Information Statement Number 1",
+      "center": "NTWC (US National Tsunami Warning Center)",
+      "bulletin": "Tsunami Information Statement Number 1",
+      "category": "Information",
+      "region": "40 miles SW of Palmer, Alaska",
+      "mag": 4.0,
+      "lat": 61.346,
+      "lon": -150.127,
+      "time": "2026-11-28T06:19:30Z",
+      "url": "https://www.tsunami.gov/events/PAAQ/2026/11/28/tp77vh/1/WEAK53/WEAK53.txt"
+    }
+  ],
   "gdacs": [
     {
       "id": "gdacs:FL1104297",
@@ -754,5 +767,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-28T06:12:07Z"
+  "updated": "2026-11-28T07:22:37Z"
 }
