@@ -83,6 +83,22 @@
       "episodeid": "1"
     },
     {
+      "id": "gdacs:FL1104302",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Paraguay",
+      "name": "",
+      "country": "Paraguay",
+      "lat": -23.0,
+      "lon": -56.0,
+      "time": "2026-11-27T07:13:38Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104302",
+      "current": true,
+      "eventid": "1104302",
+      "episodeid": "4"
+    },
+    {
       "id": "gdacs:FL1104270",
       "type": "FL",
       "kind": "Flood",
@@ -17245,5 +17261,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-27T23:20:26Z"
+  "updated": "2026-11-28T00:08:10Z"
 }
