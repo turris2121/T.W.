@@ -16,6 +16,22 @@
   ],
   "gdacs": [
     {
+      "id": "gdacs:FL1104303",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Orange flood alert in Bolivia",
+      "name": "",
+      "country": "Bolivia",
+      "lat": -17.4012458,
+      "lon": -66.1675681,
+      "time": "2026-11-27T08:17:15Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104303",
+      "current": true,
+      "eventid": "1104303",
+      "episodeid": "2"
+    },
+    {
       "id": "gdacs:FL1104297",
       "type": "FL",
       "kind": "Flood",
@@ -32,20 +48,20 @@
       "episodeid": "2"
     },
     {
-      "id": "gdacs:FL1104302",
+      "id": "gdacs:FL1104290",
       "type": "FL",
       "kind": "Flood",
       "level": "Green",
-      "title": "Green flood alert in Paraguay",
+      "title": "Green flood alert in United States",
       "name": "",
-      "country": "Paraguay",
-      "lat": -23.5,
-      "lon": -58.833333,
-      "time": "2026-11-27T07:13:38Z",
-      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104302",
+      "country": "United States",
+      "lat": 40.739203,
+      "lon": -124.2180001,
+      "time": "2026-11-20T09:07:26Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104290",
       "current": true,
-      "eventid": "1104302",
-      "episodeid": "5"
+      "eventid": "1104290",
+      "episodeid": "4"
     },
     {
       "id": "gdacs:FL1104270",
@@ -87,13 +103,13 @@
       "title": "Green flood alert in Indonesia",
       "name": "",
       "country": "Indonesia",
-      "lat": 2.1923519,
-      "lon": 99.3812201,
+      "lat": -6.8891904,
+      "lon": 107.6404716,
       "time": "2026-10-29T09:29:04Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104253",
       "current": true,
       "eventid": "1104253",
-      "episodeid": "66"
+      "episodeid": "69"
     },
     {
       "id": "gdacs:FL1104220",
@@ -783,5 +799,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-28T08:26:06Z"
+  "updated": "2026-11-28T09:15:50Z"
 }
