@@ -103,13 +103,13 @@
       "title": "Green flood alert in Indonesia",
       "name": "",
       "country": "Indonesia",
-      "lat": -6.8891904,
-      "lon": 107.6404716,
+      "lat": 1.4773227,
+      "lon": 102.110402,
       "time": "2026-10-29T09:29:04Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104253",
       "current": true,
       "eventid": "1104253",
-      "episodeid": "69"
+      "episodeid": "70"
     },
     {
       "id": "gdacs:FL1104220",
@@ -799,5 +799,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-28T09:15:50Z"
+  "updated": "2026-11-28T10:04:09Z"
 }
