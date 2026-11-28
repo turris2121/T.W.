@@ -14,16 +14,16 @@
       "url": "https://www.tsunami.gov/events/PHEB/2026/11/28/26332000/1/WEGM42/WEGM42.txt"
     },
     {
-      "id": "noaa:urn:uuid:1122a0cc-a249-4fd8-8443-7aecfdb4243f:Tsunami Information Statement Number 1",
+      "id": "noaa:urn:uuid:f2d70e01-fa6a-463c-8844-06a45fb9ed69:Tsunami Information Statement Number 1",
       "center": "NTWC (US National Tsunami Warning Center)",
       "bulletin": "Tsunami Information Statement Number 1",
       "category": "Information",
       "region": "105 miles NW of San Diego, California",
-      "mag": 5.1,
-      "lat": 33.795,
-      "lon": -118.449,
-      "time": "2026-11-28T17:35:53Z",
-      "url": "https://www.tsunami.gov/events/PAAQ/2026/11/28/tp83au/1/WEAK53/WEAK53.txt"
+      "mag": 4.6,
+      "lat": 33.802,
+      "lon": -118.459,
+      "time": "2026-11-28T19:45:13Z",
+      "url": "https://www.tsunami.gov/events/PAAQ/2026/11/28/tp89cx/1/WEAK53/WEAK53.txt"
     }
   ],
   "gdacs": [
@@ -859,5 +859,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-28T18:02:14Z"
+  "updated": "2026-11-28T20:25:41Z"
 }
