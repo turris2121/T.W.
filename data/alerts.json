@@ -2,28 +2,28 @@
   "official_tsunami": [],
   "tsunami_info": [
     {
-      "id": "noaa:urn:uuid:983a7ba4-90e2-4df1-a866-eee33d0077e8:TSUNAMI INFORMATION STATEMENT NUMBER   1",
+      "id": "noaa:urn:uuid:585e4f0b-3df7-48ca-9b67-5f8839c672b0:TSUNAMI INFORMATION STATEMENT NUMBER   1",
       "center": "PTWC (Pacific Tsunami Warning Center)",
       "bulletin": "TSUNAMI INFORMATION STATEMENT NUMBER 1",
       "category": "Information",
       "region": "NEAR THE EAST COAST OF KAMCHATKA  RUSSIA",
-      "mag": 6.8,
+      "mag": 6.7,
       "lat": 53.636,
       "lon": 158.241,
-      "time": "2026-11-28T13:28:06Z",
-      "url": "https://www.tsunami.gov/events/PHEB/2026/11/28/26332000/1/WEPA42/WEPA42.txt"
+      "time": "2026-11-28T13:36:06Z",
+      "url": "https://www.tsunami.gov/events/PHEB/2026/11/28/26332000/1/WEGM42/WEGM42.txt"
     },
     {
-      "id": "noaa:urn:uuid:7059c5c5-179b-4a73-af52-0f6a7791a9d7:Tsunami Information Statement Number 1",
+      "id": "noaa:urn:uuid:5caf6625-b0f8-4f2d-8f5a-0c6470d50919:Tsunami Information Statement Number 1",
       "center": "NTWC (US National Tsunami Warning Center)",
       "bulletin": "Tsunami Information Statement Number 1",
       "category": "Information",
-      "region": "40 miles SW of Palmer, Alaska",
-      "mag": 4.0,
-      "lat": 61.346,
-      "lon": -150.127,
-      "time": "2026-11-28T06:19:30Z",
-      "url": "https://www.tsunami.gov/events/PAAQ/2026/11/28/tp77vh/1/WEAK53/WEAK53.txt"
+      "region": "330 miles SW of Bering I., Komandorski",
+      "mag": 6.8,
+      "lat": 53.6,
+      "lon": 158.2,
+      "time": "2026-11-28T13:30:12Z",
+      "url": "https://www.tsunami.gov/events/PAAQ/2026/11/28/tp7rh7/1/WEAK53/WEAK53.txt"
     }
   ],
   "gdacs": [
@@ -42,6 +42,22 @@
       "current": true,
       "eventid": "1104303",
       "episodeid": "2"
+    },
+    {
+      "id": "gdacs:FL1104304",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Slovenia",
+      "name": "",
+      "country": "Slovenia",
+      "lat": 45.5257647,
+      "lon": 13.5729306,
+      "time": "2026-11-28T09:35:41Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104304",
+      "current": true,
+      "eventid": "1104304",
+      "episodeid": "3"
     },
     {
       "id": "gdacs:FL1104297",
@@ -90,6 +106,22 @@
       "current": true,
       "eventid": "1104286",
       "episodeid": "2"
+    },
+    {
+      "id": "gdacs:FL1104285",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Croatia",
+      "name": "",
+      "country": "Croatia",
+      "lat": 45.1934345,
+      "lon": 13.9150536,
+      "time": "2026-11-16T05:50:23Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104285",
+      "current": true,
+      "eventid": "1104285",
+      "episodeid": "4"
     },
     {
       "id": "gdacs:FL1104270",
@@ -827,5 +859,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-28T13:30:09Z"
+  "updated": "2026-11-28T14:21:59Z"
 }
