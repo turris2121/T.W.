@@ -2,6 +2,18 @@
   "official_tsunami": [],
   "tsunami_info": [
     {
+      "id": "noaa:urn:uuid:983a7ba4-90e2-4df1-a866-eee33d0077e8:TSUNAMI INFORMATION STATEMENT NUMBER   1",
+      "center": "PTWC (Pacific Tsunami Warning Center)",
+      "bulletin": "TSUNAMI INFORMATION STATEMENT NUMBER 1",
+      "category": "Information",
+      "region": "NEAR THE EAST COAST OF KAMCHATKA  RUSSIA",
+      "mag": 6.8,
+      "lat": 53.636,
+      "lon": 158.241,
+      "time": "2026-11-28T13:28:06Z",
+      "url": "https://www.tsunami.gov/events/PHEB/2026/11/28/26332000/1/WEPA42/WEPA42.txt"
+    },
+    {
       "id": "noaa:urn:uuid:7059c5c5-179b-4a73-af52-0f6a7791a9d7:Tsunami Information Statement Number 1",
       "center": "NTWC (US National Tsunami Warning Center)",
       "bulletin": "Tsunami Information Statement Number 1",
@@ -64,6 +76,22 @@
       "episodeid": "4"
     },
     {
+      "id": "gdacs:FL1104286",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in South Africa",
+      "name": "",
+      "country": "South Africa",
+      "lat": -26.004472,
+      "lon": 28.0042447,
+      "time": "2026-11-17T07:24:32Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104286",
+      "current": true,
+      "eventid": "1104286",
+      "episodeid": "2"
+    },
+    {
       "id": "gdacs:FL1104270",
       "type": "FL",
       "kind": "Flood",
@@ -119,13 +147,13 @@
       "title": "Green flood alert in Italy",
       "name": "",
       "country": "Italy",
-      "lat": 40.0615028,
-      "lon": 9.0975894,
+      "lat": 40.8358846,
+      "lon": 14.2487679,
       "time": "2026-10-10T07:04:44Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104220",
       "current": true,
       "eventid": "1104220",
-      "episodeid": "24"
+      "episodeid": "25"
     },
     {
       "id": "gdacs:FL1104216",
@@ -799,5 +827,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-28T12:26:16Z"
+  "updated": "2026-11-28T13:30:09Z"
 }
