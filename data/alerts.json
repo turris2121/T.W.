@@ -17197,7 +17197,8 @@
     }
   ],
   "feed_errors": [
+    "Forecast: <urlopen error _ssl.c:1063: The handshake operation timed out>",
     "Forecast: <urlopen error _ssl.c:1063: The handshake operation timed out>"
   ],
-  "updated": "2026-11-28T01:17:00Z"
+  "updated": "2026-11-28T02:24:05Z"
 }
