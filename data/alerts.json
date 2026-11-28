@@ -39,13 +39,13 @@
       "title": "Green flood alert in Paraguay",
       "name": "",
       "country": "Paraguay",
-      "lat": -23.0,
-      "lon": -56.0,
+      "lat": -23.5,
+      "lon": -58.833333,
       "time": "2026-11-27T07:13:38Z",
       "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104302",
       "current": true,
       "eventid": "1104302",
-      "episodeid": "4"
+      "episodeid": "5"
     },
     {
       "id": "gdacs:FL1104270",
@@ -62,6 +62,22 @@
       "current": true,
       "eventid": "1104270",
       "episodeid": "9"
+    },
+    {
+      "id": "gdacs:FL1104259",
+      "type": "FL",
+      "kind": "Flood",
+      "level": "Green",
+      "title": "Green flood alert in Peru",
+      "name": "",
+      "country": "Peru",
+      "lat": -3.5707875,
+      "lon": -80.4596454,
+      "time": "2026-10-29T09:44:53Z",
+      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104259",
+      "current": true,
+      "eventid": "1104259",
+      "episodeid": "12"
     },
     {
       "id": "gdacs:FL1104253",
@@ -767,5 +783,5 @@
     }
   ],
   "feed_errors": [],
-  "updated": "2026-11-28T07:22:37Z"
+  "updated": "2026-11-28T08:26:06Z"
 }
