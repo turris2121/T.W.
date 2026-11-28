@@ -35,54 +35,6 @@
       "episodeid": "2"
     },
     {
-      "id": "gdacs:FL1104299",
-      "type": "FL",
-      "kind": "Flood",
-      "level": "Green",
-      "title": "Green flood alert in Uganda",
-      "name": "",
-      "country": "Uganda",
-      "lat": 0.1310412,
-      "lon": 30.0047968,
-      "time": "2026-11-25T07:17:30Z",
-      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104299",
-      "current": true,
-      "eventid": "1104299",
-      "episodeid": "1"
-    },
-    {
-      "id": "gdacs:FL1104295",
-      "type": "FL",
-      "kind": "Flood",
-      "level": "Green",
-      "title": "Green flood alert in Ireland",
-      "name": "",
-      "country": "Ireland",
-      "lat": 51.6797696,
-      "lon": -9.4523603,
-      "time": "2026-11-23T12:15:51Z",
-      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104295",
-      "current": true,
-      "eventid": "1104295",
-      "episodeid": "1"
-    },
-    {
-      "id": "gdacs:FL1104298",
-      "type": "FL",
-      "kind": "Flood",
-      "level": "Green",
-      "title": "Green flood alert in Portugal",
-      "name": "",
-      "country": "Portugal",
-      "lat": 39.6036596,
-      "lon": -8.4150492,
-      "time": "2026-11-24T12:04:01Z",
-      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104298",
-      "current": true,
-      "eventid": "1104298",
-      "episodeid": "1"
-    },
-    {
       "id": "gdacs:FL1104302",
       "type": "FL",
       "kind": "Flood",
@@ -113,22 +65,6 @@
       "current": true,
       "eventid": "1104270",
       "episodeid": "9"
-    },
-    {
-      "id": "gdacs:FL1104259",
-      "type": "FL",
-      "kind": "Flood",
-      "level": "Green",
-      "title": "Green flood alert in Peru",
-      "name": "",
-      "country": "Peru",
-      "lat": -5.0,
-      "lon": -80.333333,
-      "time": "2026-10-29T09:44:53Z",
-      "url": "https://www.gdacs.org/report.aspx?eventtype=FL&eventid=1104259",
-      "current": true,
-      "eventid": "1104259",
-      "episodeid": "11"
     },
     {
       "id": "gdacs:FL1104253",
@@ -17260,6 +17196,8 @@
       "url": "https://www.who.int/emergencies/disease-outbreak-news/item/middle-east-respiratory-syndrome-coronavirus---kingdom-of-saudi-arabia"
     }
   ],
-  "feed_errors": [],
-  "updated": "2026-11-28T00:08:10Z"
+  "feed_errors": [
+    "Forecast: <urlopen error _ssl.c:1063: The handshake operation timed out>"
+  ],
+  "updated": "2026-11-28T01:17:00Z"
 }
